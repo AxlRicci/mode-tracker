@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { firestore } from '../../firebase/firebase.utils';
+
+import { UserContext } from '../../contexts/user.context';
 
 import FormInput from '../form-input/form-input.component';
 import CustomButton from '../custom-button/custom-button.component';
@@ -6,6 +9,7 @@ import CustomButton from '../custom-button/custom-button.component';
 import './tracker-form.styles.scss';
 
 const TrackerForm = () => {
+  const currentUser = useContext(UserContext);
   const [formValues, setFormValues] = useState({
     bike: '',
     walk: '',
@@ -22,9 +26,20 @@ const TrackerForm = () => {
     });
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log(formValues);
+    const surveyDocument = {
+      ...formValues,
+      user: currentUser.uid,
+    };
+    await firestore.collection('/locations').doc().set(surveyDocument);
+    setFormValues({
+      bike: '',
+      walk: '',
+      roll: '',
+      publicTrans: '',
+      schoolBus: '',
+    });
   };
 
   return (
