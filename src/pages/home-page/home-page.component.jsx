@@ -1,31 +1,24 @@
-import React, { useContext } from 'react';
+import React from 'react';
+import propTypes from 'prop-types';
+import { withRouter } from 'react-router-dom';
+import HeroSection from '../../components/hero-section/hero-section.component';
+import InfoCardSection from '../../components/info-card-section/info-card-section.component';
+import CtaSection from '../../components/cta-section/cta-section.component';
 
-import { UserContext } from '../../contexts/user.context';
+const HomePage = ({ history }) => (
+  <div className="home-page">
+    <HeroSection additionalClasses="home-page__hero" />
+    <InfoCardSection />
+    <CtaSection
+      heading="Take Modal For A Spin"
+      subheading="Try Modal now, do a 30-second practice survey"
+      buttonLabel="Try a Practice Survey"
+    />
+  </div>
+);
 
-import TrackerForm from '../../components/tracker-form/tracker-form.component';
-import SurveyList from '../../components/survey-list/survey-list.component';
-
-import './home-page.styles.scss';
-
-const HomePage = () => {
-  const user = useContext(UserContext);
-
-  if (user) {
-    return (
-      <div className="home">
-        <h1 className="home__heading">
-          Welcome, {user.displayName} to the Mode Tracker!
-        </h1>
-        <TrackerForm />
-        <SurveyList />
-      </div>
-    );
-  }
-  return (
-    <div className="home">
-      <h1>LOADING...</h1>
-    </div>
-  );
+HomePage.propTypes = {
+  history: propTypes.object,
 };
 
-export default HomePage;
+export default withRouter(HomePage);

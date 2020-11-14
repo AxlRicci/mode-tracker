@@ -3,21 +3,31 @@ import propTypes from 'prop-types';
 
 import './custom-button.styles.scss';
 
-const CustomButton = ({ additionalClasses, handleClick, label, type }) => (
-  <button
-    className={`custom-button ${additionalClasses}`}
-    onClick={handleClick}
-    type={type === 'submit' ? 'submit' : 'button'}
-  >
-    {label}
-  </button>
-);
+const CustomButton = ({
+  additionalClasses,
+  handleClick,
+  type,
+  children,
+  variant,
+}) => {
+  const version = variant ? `custom-button--${variant}` : null;
+  return (
+    <button
+      className={`custom-button ${additionalClasses} ${version}`}
+      onClick={handleClick}
+      type={type === 'submit' ? 'submit' : 'button'}
+    >
+      {children}
+    </button>
+  );
+};
 
 CustomButton.propTypes = {
   additionalClasses: propTypes.string,
   type: propTypes.string,
   handleClick: propTypes.func,
-  label: propTypes.string,
+  children: propTypes.string,
+  variant: propTypes.string,
 };
 
 export default CustomButton;

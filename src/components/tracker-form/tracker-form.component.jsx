@@ -1,80 +1,185 @@
-import React, { useState, useContext } from 'react';
-import { firestore } from '../../firebase/firebase.utils';
+import React, { useState, useContext, useEffect } from 'react';
+import { createNewSurveyDocument } from '../../firebase/firebase.utils';
 
 import { UserContext } from '../../contexts/user.context';
 
 import FormInput from '../form-input/form-input.component';
 import CustomButton from '../custom-button/custom-button.component';
+import LocationPicker from '../location-picker/location-picker.component';
+import GradePicker from '../grade-picker/grade-picker.component';
 
 import './tracker-form.styles.scss';
 
 const TrackerForm = () => {
   const currentUser = useContext(UserContext);
   const [formValues, setFormValues] = useState({
-    bike: '',
-    walk: '',
-    roll: '',
-    publicTrans: '',
-    schoolBus: '',
+    location: '',
+    grade: '',
+    surveyData: {
+      tlBike: '',
+      tlWalk: '',
+      tlRoll: '',
+      tlPublicTrans: '',
+      tlSchoolBus: '',
+      tlCar: '',
+      flBike: '',
+      flWalk: '',
+      flRoll: '',
+      flPublicTrans: '',
+      flSchoolBus: '',
+      flCar: '',
+    },
   });
 
-  const handleChange = (event) => {
+  useEffect(() => {
+    if (currentUser) {
+      setFormValues({
+        ...formValues,
+        location: currentUser.location,
+        grade: currentUser.grade,
+      });
+    }
+  }, [currentUser]);
+
+  const handleInputChange = (event) => {
     const { name, value } = event.target;
-    setFormValues({
-      ...formValues,
-      [name]: value,
-    });
+    if (name === 'location' || name === 'grade') {
+      setFormValues({
+        ...formValues,
+        [name]: value,
+      });
+    } else {
+      setFormValues({
+        surveyData: {
+          ...formValues.surveyData,
+          [name]: value,
+        },
+      });
+    }
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     const surveyDocument = {
-      ...formValues,
+      location: formValues.location,
+      grade: formValues.grade,
+      data: {
+        ...formValues.surveyData,
+      },
       user: currentUser.uid,
+      createdAt: new Date(),
     };
-    await firestore.collection('/locations').doc().set(surveyDocument);
+    createNewSurveyDocument(surveyDocument, currentUser);
     setFormValues({
-      bike: '',
-      walk: '',
-      roll: '',
-      publicTrans: '',
-      schoolBus: '',
+      location: '',
+      grade: '',
+      surveyData: {
+        tlBike: '',
+        tlWalk: '',
+        tlRoll: '',
+        tlPublicTrans: '',
+        tlSchoolBus: '',
+        tlCar: '',
+        flBike: '',
+        flWalk: '',
+        flRoll: '',
+        flPublicTrans: '',
+        flSchoolBus: '',
+        flCar: '',
+      },
     });
   };
 
   return (
     <div className="tracker-form">
       <form>
-        <FormInput
-          handleChange={handleChange}
-          name="bike"
-          label="Bike"
-          value={formValues.bike}
+        <LocationPicker
+          name="location"
+          handleChange={handleInputChange}
+          value={formValues.location}
         />
-        <FormInput
-          handleChange={handleChange}
-          name="walk"
-          label="Walk"
-          value={formValues.walk}
+        <GradePicker
+          handleChange={handleInputChange}
+          value={formValues.grade}
         />
-        <FormInput
-          handleChange={handleChange}
-          name="roll"
-          label="Roll"
-          value={formValues.roll}
-        />
-        <FormInput
-          handleChange={handleChange}
-          name="publicTrans"
-          label="publicTrans"
-          value={formValues.publicTrans}
-        />
-        <FormInput
-          handleChange={handleChange}
-          name="schoolBus"
-          label="schoolBus"
-          value={formValues.schoolBus}
-        />
+        <div className="tracker-form__to-school">
+          <h3 className="tracker-form__section-heading">TO SCHOOL</h3>
+          <FormInput
+            handleChange={handleInputChange}
+            name="tlBike"
+            label="Bike"
+            value={formValues.tlBike}
+          />
+          <FormInput
+            handleChange={handleInputChange}
+            name="tlWalk"
+            label="Walk"
+            value={formValues.tlWalk}
+          />
+          <FormInput
+            handleChange={handleInputChange}
+            name="tlRoll"
+            label="Roll"
+            value={formValues.tlRoll}
+          />
+          <FormInput
+            handleChange={handleInputChange}
+            name="tlPublicTrans"
+            label="publicTrans"
+            value={formValues.tlPublicTrans}
+          />
+          <FormInput
+            handleChange={handleInputChange}
+            name="tlSchoolBus"
+            label="schoolBus"
+            value={formValues.tlSchoolBus}
+          />
+          <FormInput
+            handleChange={handleInputChange}
+            name="tlCar"
+            label="Car"
+            value={formValues.tlCar}
+          />
+        </div>
+        <div className="tracker-form__to-school">
+          <h3 className="tracker-form__section-heading">FROM SCHOOL</h3>
+          <FormInput
+            handleChange={handleInputChange}
+            name="flBike"
+            label="Bike"
+            value={formValues.flBike}
+          />
+          <FormInput
+            handleChange={handleInputChange}
+            name="flWalk"
+            label="Walk"
+            value={formValues.flWalk}
+          />
+          <FormInput
+            handleChange={handleInputChange}
+            name="flRoll"
+            label="Roll"
+            value={formValues.flRoll}
+          />
+          <FormInput
+            handleChange={handleInputChange}
+            name="flPublicTrans"
+            label="publicTrans"
+            value={formValues.flPublicTrans}
+          />
+          <FormInput
+            handleChange={handleInputChange}
+            name="flSchoolBus"
+            label="schoolBus"
+            value={formValues.flSchoolBus}
+          />
+          <FormInput
+            handleChange={handleInputChange}
+            name="flCar"
+            label="Car"
+            value={formValues.flCar}
+          />
+        </div>
         <CustomButton handleClick={handleSubmit} type="submit" label="submit" />
       </form>
     </div>

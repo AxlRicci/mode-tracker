@@ -1,0 +1,20 @@
+@import "../../design-tokens/main.scss";
+
+.custom-link {
+  &--nav {
+    text-decoration: none;
+    color: $color-grey-med;
+    font-weight: 500;
+    font-size: 1.6rem;
+    transition: 0.2s all;
+
+    &:hover {
+      color: $color-grey-dark;
+    }
+
+    &:active,
+    &:focus {
+      color: $color-grey-dark;
+    }
+  }
+}

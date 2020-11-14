@@ -1,0 +1,10 @@
+@import "../../design-tokens/main.scss";
+
+.home-page {
+  grid-column: 2 / 14;
+  @include inner-grid;
+
+  &__hero {
+    grid-column: 1 / 13;
+  }
+}
