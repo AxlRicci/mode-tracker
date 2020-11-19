@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import Container from 'react-bootstrap/Container';
 import { firestore, collectionRefToMap } from '../../firebase/firebase.utils';
 
-import './location-list-page.styles.scss';
+import LocationList from '../../components/location-list/location-list.component';
 
 const LocationListPage = () => {
   const [locationList, setLocationList] = useState(null);
@@ -16,14 +17,10 @@ const LocationListPage = () => {
 
   if (locationList) {
     return (
-      <div className="location-list">
-        <h1>Location list</h1>
-        {locationList.map((location) => (
-          <div className="location">
-            <p>{location.locationName}</p>
-          </div>
-        ))}
-      </div>
+      <Container className="mt-3">
+        <h1 className="mb-5">All Schools</h1>
+        <LocationList locations={locationList} />
+      </Container>
     );
   }
   return (

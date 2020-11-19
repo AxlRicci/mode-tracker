@@ -7,16 +7,21 @@ import Col from 'react-bootstrap/Col';
 import './form-input.styles.scss';
 
 const FormInput = ({
-  reassign,
   description,
   handleChange,
   label,
   name,
   placeholder,
+  reassign,
   type,
   value,
+  xs,
+  sm,
+  md,
+  lg,
+  xl,
 }) => (
-  <Form.Group as={Col} controlId={name}>
+  <Form.Group as={Col} xs={xs} sm={sm} md={md} lg={lg} xl={xl} controlId={name}>
     <Form.Label>{label}</Form.Label>
     <Form.Control
       onChange={handleChange}
@@ -39,6 +44,11 @@ FormInput.propTypes = {
   reassign: propTypes.string,
   type: propTypes.string,
   value: propTypes.string,
+  xs: propTypes.object,
+  sm: propTypes.object,
+  md: propTypes.object,
+  lg: propTypes.object,
+  xl: propTypes.object,
 };
 
 export default FormInput;

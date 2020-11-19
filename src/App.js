@@ -43,7 +43,7 @@ const App = () => {
               <Route exact path="/" component={HomePage} />
               <Route path="/login" component={LoginPage} />
               <Route path="/profile" component={ProfilePage} />
-              <Route exact path="/location" component={LocationListPage} />
+              <Route exact path="/locations" component={LocationListPage} />
               <Route path="/location/:id" component={LocationPage} />
               <Route path="/add-location" component={AddLocationPage} />
               <Route path="/survey" component={SurveyPage} />

@@ -20,30 +20,21 @@ const Navigation = ({ history }) => {
 
   return (
     <Navbar bg="white" expand="xl">
-      <Navbar.Brand href="/">Modal</Navbar.Brand>
+      <Navbar.Brand as={Link} to="/">
+        Modal
+      </Navbar.Brand>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">
-        <Nav classname="mr-auto">
+        <Nav className="mr-auto">
           <Nav.Link as={Link} to="/">
             Home
           </Nav.Link>
-          <Nav.Link as={Link} to="/schools">
+          <Nav.Link as={Link} to="/locations">
             Schools
           </Nav.Link>
-          <Nav.Link as={Link} to="/boards">
-            Boards / Organizations
+          <Nav.Link as={Link} to="/about">
+            About
           </Nav.Link>
-          <NavDropdown title="More" id="basic-nav-dropdown">
-            <NavDropdown.Item as={Link} to="/add-location">
-              Add a school
-            </NavDropdown.Item>
-            <NavDropdown.Item as={Link} to="/faq">
-              FAQ
-            </NavDropdown.Item>
-            <NavDropdown.Item as={Link} to="/about">
-              About
-            </NavDropdown.Item>
-          </NavDropdown>
         </Nav>
         {currentUser ? (
           <Nav className="ml-auto">

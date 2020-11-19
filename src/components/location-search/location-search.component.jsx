@@ -1,21 +1,17 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
+import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
-import Container from 'react-bootstrap/Container';
-import Col from 'react-bootstrap/Col';
-import Row from 'react-bootstrap/Row';
 import Form from 'react-bootstrap/Form';
 import { createNewLocationDocument } from '../../firebase/firebase.utils';
 import FormInput from '../form-input/form-input.component';
-import SelectInput from '../select-input/select-input.component';
-import PlaceList from '../place-list/place-list.component';
+import LocationSearchResultsList from '../location-search-results-list/location-search-results-list.component';
 
-import './place-search.styles.scss';
-
-const PlaceSearch = () => {
+const LocationSearch = () => {
   const [location, setLocation] = useState({
     locationName: '',
-    locationType: '',
+    locationType: 'school',
     streetNumber: '',
     streetName: '',
     city: '',
@@ -25,6 +21,7 @@ const PlaceSearch = () => {
   });
   const [search, setSearch] = useState('');
   const [results, setResults] = useState(null);
+  const [alert, setAlert] = useState(null);
 
   const fetchResults = (searchTerm, API_KEY) => {
     fetch(
@@ -32,7 +29,6 @@ const PlaceSearch = () => {
     )
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
         setResults(data.features);
       });
   };
@@ -48,13 +44,28 @@ const PlaceSearch = () => {
       country,
     } = location;
     const searchTerm = `${streetNumber} ${streetName} ${city} ${province} ${postalCode} ${country}`;
-    setSearch(searchTerm);
-    fetchResults(search, process.env.REACT_APP_MAPBOX_KEY);
+    fetchResults(searchTerm, process.env.REACT_APP_MAPBOX_KEY);
   };
 
   const selectGeocodedLocation = async (result) => {
     const { locationName, locationType } = location;
-    createNewLocationDocument(result, locationName, locationType);
+    try {
+      await createNewLocationDocument(result, locationName, locationType);
+      setAlert({ success: true, msg: 'Location successfully added' });
+      setResults(null);
+      setLocation({
+        locationName: '',
+        locationType: 'school',
+        streetNumber: '',
+        streetName: '',
+        city: '',
+        province: '',
+        postalCode: '',
+        country: '',
+      });
+    } catch (err) {
+      setAlert({ success: false, msg: 'Location Already Exists' });
+    }
   };
 
   const handleFormInputChange = (event) => {
@@ -67,6 +78,14 @@ const PlaceSearch = () => {
 
   return (
     <div className="place-search">
+      {alert ? (
+        <Alert variant={alert.success ? 'success' : 'danger'}>
+          {`${alert.msg}. `}
+          <Alert.Link as={Link} to="/survey">
+            Start a survey now.
+          </Alert.Link>
+        </Alert>
+      ) : null}
       <Form>
         <Form.Row>
           <FormInput
@@ -76,15 +95,10 @@ const PlaceSearch = () => {
             name="locationName"
             value={location.locationName}
           />
-          <SelectInput
-            label="Type"
-            name="locationType"
-            handleChange={handleFormInputChange}
-            type="location"
-          />
         </Form.Row>
         <Form.Row>
           <FormInput
+            sm={{ span: 3 }}
             handleChange={handleFormInputChange}
             label="Street Number"
             placeholder="Enter street number"
@@ -101,6 +115,8 @@ const PlaceSearch = () => {
         </Form.Row>
         <Form.Row>
           <FormInput
+            md={{ span: 6 }}
+            lg={{ span: 3 }}
             handleChange={handleFormInputChange}
             label="City"
             placeholder="Enter the city"
@@ -108,6 +124,8 @@ const PlaceSearch = () => {
             value={location.city}
           />
           <FormInput
+            md={{ span: 6 }}
+            lg={{ span: 3 }}
             handleChange={handleFormInputChange}
             label="Province / State"
             placeholder="Enter the province/state"
@@ -115,6 +133,8 @@ const PlaceSearch = () => {
             value={location.province}
           />
           <FormInput
+            md={{ span: 6 }}
+            lg={{ span: 3 }}
             handleChange={handleFormInputChange}
             label="Postal Code / ZIP"
             placeholder="Enter the postal code/zip code"
@@ -122,6 +142,8 @@ const PlaceSearch = () => {
             value={location.postalCode}
           />
           <FormInput
+            md={{ span: 6 }}
+            lg={{ span: 3 }}
             handleChange={handleFormInputChange}
             label="Country"
             placeholder="Enter the country name"
@@ -133,13 +155,17 @@ const PlaceSearch = () => {
           Search
         </Button>
       </Form>
-      <div className="place-search__results">
-        {results ? (
-          <PlaceList results={results} handleClick={selectGeocodedLocation} />
-        ) : null}
-      </div>
+      {results ? (
+        <div className="place-search__results-container mt-5">
+          <h3 className="mb-4">Select the correct address from list</h3>
+          <LocationSearchResultsList
+            results={results}
+            handleClick={selectGeocodedLocation}
+          />
+        </div>
+      ) : null}
     </div>
   );
 };
 
-export default PlaceSearch;
+export default LocationSearch;

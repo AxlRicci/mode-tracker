@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { firestore, collectionRefToMap } from '../../firebase/firebase.utils';
 
-import './survey-list.styles.scss';
+import CardGroup from 'react-bootstrap/CardGroup';
+import SurveyListCard from '../survey-list-card/survey-list-card.component';
+
+import { firestore, collectionRefToMap } from '../../firebase/firebase.utils';
 
 const SurveyList = ({ query }) => {
   const [surveyList, setSurveyList] = useState(null);
@@ -32,20 +34,15 @@ const SurveyList = ({ query }) => {
   }, [query]);
 
   return (
-    <div className="survey-list">
+    <CardGroup>
       {surveyList
-        ? surveyList.map((survey) => (
-            <div className="survey-item">
-              <p>{survey.location}</p>
-            </div>
-          ))
+        ? surveyList.map((survey) => <SurveyListCard survey={survey} />)
         : null}
-    </div>
+    </CardGroup>
   );
 };
 
 SurveyList.propTypes = {
   query: PropTypes.object,
 };
-
 export default SurveyList;

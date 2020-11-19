@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
+
+import Button from 'react-bootstrap/Button';
+import Col from 'react-bootstrap/Col';
+import Container from 'react-bootstrap/Container';
+import Jumbotron from 'react-bootstrap/Jumbotron';
+import Row from 'react-bootstrap/Row';
+
 import { firestore } from '../../firebase/firebase.utils';
 
 import SurveyList from '../../components/survey-list/survey-list.component';
-
-import './location-page.styles.scss';
 
 const LocationPage = ({
   match: {
@@ -30,10 +35,25 @@ const LocationPage = ({
 
   if (location) {
     return (
-      <div className="location-page">
-        <h1>Location Page for {location.locationName}</h1>
+      <Container className="location-page">
+        <Row>
+          <Col>
+            <h1>{location.locationName}</h1>
+            <p>{location.locationAddress}</p>
+          </Col>
+          <Col>
+            <Button size="lg">{`Do a survey at ${location.locationName}`}</Button>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <Jumbotron>
+              <h2>Overall</h2>
+            </Jumbotron>
+          </Col>
+        </Row>
         <SurveyList query={{ field: 'location', value: location.locationId }} />
-      </div>
+      </Container>
     );
   }
   return (

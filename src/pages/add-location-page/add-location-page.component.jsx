@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 
-import PlaceSearch from '../../components/place-search/place-search.component';
+import Container from 'react-bootstrap/Container';
 
-import './add-location-page.styles.scss';
+import LocationSearch from '../../components/location-search/location-search.component';
 
 const AddLocationPage = () => (
-  <div className="add-location">
-    <h1>Add Location Page.</h1>
-    <PlaceSearch />
-  </div>
+  <Container className="mt-3">
+    <h1 className="mb-5 mt-3">Add a school to Modal</h1>
+    <LocationSearch />
+  </Container>
 );
 
 export default AddLocationPage;

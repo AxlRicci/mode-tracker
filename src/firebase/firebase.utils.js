@@ -97,6 +97,8 @@ export const createNewLocationDocument = async (result, name, type) => {
       locationType: type,
       surveys: [],
     });
+  } else {
+    throw new Error('location exists');
   }
 };
 

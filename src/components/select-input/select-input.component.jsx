@@ -4,7 +4,17 @@ import propTypes from 'prop-types';
 import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
 
-const SelectInput = ({ handleChange, label, name, type }) => {
+const SelectInput = ({
+  handleChange,
+  label,
+  name,
+  type,
+  xs,
+  sm,
+  md,
+  lg,
+  xl,
+}) => {
   const grade = [
     '1',
     '1-2',
@@ -36,7 +46,15 @@ const SelectInput = ({ handleChange, label, name, type }) => {
   }
 
   return (
-    <Form.Group as={Col} controlId={name}>
+    <Form.Group
+      as={Col}
+      xs={xs}
+      sm={sm}
+      md={md}
+      lg={lg}
+      xl={xl}
+      controlId={name}
+    >
       <Form.Label>{label}</Form.Label>
       <Form.Control onChange={handleChange} as="select">
         {selected.map((option) => (
@@ -52,6 +70,11 @@ SelectInput.propTypes = {
   label: propTypes.string,
   name: propTypes.string,
   type: propTypes.string,
+  xs: propTypes.object,
+  sm: propTypes.object,
+  md: propTypes.object,
+  lg: propTypes.object,
+  xl: propTypes.object,
 };
 
 export default SelectInput;
