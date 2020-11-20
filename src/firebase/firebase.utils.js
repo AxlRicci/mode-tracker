@@ -82,6 +82,44 @@ export const createNewSurveyDocument = async (survey, user) => {
   });
 };
 
+// Get all data for surveys for a specific direction completed at a specific location
+export const getAllSurveyData = async (locationId, direction) => {
+  const locationRef = firestore.collection('locations').doc(locationId);
+  const locationDoc = await locationRef.get();
+  const locationData = locationDoc.data();
+  const accumulator = {
+    bike: 0,
+    walk: 0,
+    roll: 0,
+    schoolbus: 0,
+    publicTrans: 0,
+    car: 0,
+  };
+  await locationData.surveys.forEach(async (survey) => {
+    const surveyDoc = await survey.get();
+    const surveyData = await surveyDoc.data();
+    surveyData.data[direction].forEach((mode) => {
+      accumulator[mode.name] = +mode.value;
+    });
+  });
+  return accumulator;
+};
+
+// clean all survey data for rechart graphs
+export const graphiphyAllSurveyData = async (locationId, direction) => {
+  const data = await getAllSurveyData(locationId, direction);
+  console.log(data);
+  const cleanedFormat = [
+    { name: 'bike', value: data.bike },
+    { name: 'walk', value: data.walk },
+    { name: 'roll', value: data.roll },
+    { name: 'schoolbus', value: data.schoolbus },
+    { name: 'publicTrans', value: data.publicTrans },
+    { name: 'car', value: data.car },
+  ];
+  return cleanedFormat;
+};
+
 /// Create Location document in Firestore.
 export const createNewLocationDocument = async (result, name, type) => {
   const locationId = result.id.split('.')[1];

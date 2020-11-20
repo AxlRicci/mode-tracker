@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import propTypes from 'prop-types';
+import { withRouter } from 'react-router-dom';
 
 import Jumbotron from 'react-bootstrap/Jumbotron';
 import Col from 'react-bootstrap/Col';
@@ -7,13 +9,25 @@ import Button from 'react-bootstrap/Button';
 
 import SurveyGraph from '../survey-graph/survey-graph.component';
 
+import { graphiphyAllSurveyData } from '../../firebase/firebase.utils';
+
 // has two columns 1.general overview numbers 2. graph using all data.
 // general overview contains % using active transportation, number of students surveyed, button to download data.
 // graph is the standard survey graph but uses all data availabe.
 // this data needs to be compiled via firebase.utils
 
-const LocationOverview = () => {
-  const name = 'alex';
+const LocationOverview = ({
+  match: {
+    params: { id },
+  },
+}) => {
+  useEffect(() => {
+    const getUsableData = async () => {
+      const data = await graphiphyAllSurveyData(id, 'to');
+      console.log(data);
+    };
+    getUsableData();
+  }, []);
   return (
     <Jumbotron>
       <h2>Overview</h2>
@@ -31,4 +45,8 @@ const LocationOverview = () => {
   );
 };
 
-export default LocationOverview;
+LocationOverview.propTypes = {
+  match: propTypes.object,
+};
+
+export default withRouter(LocationOverview);
