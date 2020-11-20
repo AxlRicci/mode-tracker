@@ -11,6 +11,7 @@ import Row from 'react-bootstrap/Row';
 import { firestore } from '../../firebase/firebase.utils';
 
 import SurveyList from '../../components/survey-list/survey-list.component';
+import LocationOverview from '../../components/location-overview/location-overview.component';
 
 const LocationPage = ({
   match: {
@@ -47,9 +48,7 @@ const LocationPage = ({
         </Row>
         <Row>
           <Col>
-            <Jumbotron>
-              <h2>Overall</h2>
-            </Jumbotron>
+            <LocationOverview />
           </Col>
         </Row>
         <SurveyList query={{ field: 'location', value: location.locationId }} />
