@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import propTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 
@@ -9,7 +9,10 @@ import Button from 'react-bootstrap/Button';
 
 import SurveyGraph from '../survey-graph/survey-graph.component';
 
-import { graphiphyAllSurveyData } from '../../firebase/firebase.utils';
+import {
+  getAllSurveyData,
+  fetchLocationDocument,
+} from '../../firebase/firebase.utils';
 
 // has two columns 1.general overview numbers 2. graph using all data.
 // general overview contains % using active transportation, number of students surveyed, button to download data.
@@ -21,26 +24,72 @@ const LocationOverview = ({
     params: { id },
   },
 }) => {
+  const [surveyData, setSurveyData] = useState(null);
+  const [atPercent, setAtPercent] = useState(null);
+  const [totalSurveyed, setTotalSurveyed] = useState(null);
+  const [locationData, setLocationData] = useState(null);
+
   useEffect(() => {
-    const getUsableData = async () => {
-      const data = await graphiphyAllSurveyData(id, 'to');
-      console.log(data);
+    const fetchData = async () => {
+      const locationDoc = await fetchLocationDocument(id);
+      setLocationData(locationDoc);
+
+      const toData = await getAllSurveyData(id, 'to', 'graph');
+      const fromData = await getAllSurveyData(id, 'from', 'graph');
+      const bothData = toData.map((mode, index) => ({
+        name: mode.name,
+        value: (mode.value += fromData[index].value),
+      }));
+      setSurveyData(bothData);
+      const total = bothData.reduce((acc, current) => {
+        let reassignedAcc = acc;
+        reassignedAcc += current.value;
+        return reassignedAcc;
+      }, 0);
+      const atTotal = bothData.reduce((acc, current) => {
+        let reassignedAcc = acc;
+        switch (current.name) {
+          case 'bike':
+            reassignedAcc += current.value;
+            break;
+          case 'walk':
+            reassignedAcc += current.value;
+            break;
+          case 'roll':
+            reassignedAcc += current.value;
+            break;
+          default:
+            return reassignedAcc;
+        }
+        return reassignedAcc;
+      }, 0);
+      setAtPercent((atTotal / total) * 100);
+      setTotalSurveyed(total);
     };
-    getUsableData();
-  }, []);
+    fetchData();
+  }, [id]);
+
+  if (locationData) {
+    return (
+      <Jumbotron>
+        <Row>
+          <Col className="">
+            <h2>Overview</h2>
+            <p>{`At ${locationData.locationName}, ${atPercent}% of students use sustainable modes of transportation (biking, walking, rolling) to get to and from school. 
+            In total ${totalSurveyed} students have been surveyed to gather this mode split`}</p>
+            <Button>Download Data</Button>
+          </Col>
+          <Col>
+            <SurveyGraph survey={surveyData} />
+          </Col>
+        </Row>
+      </Jumbotron>
+    );
+  }
+
   return (
     <Jumbotron>
-      <h2>Overview</h2>
-      <Row>
-        <Col>
-          <h3>38% Active Transportation</h3>
-          <p>500 students surveyed</p>
-          <Button>Download Data</Button>
-        </Col>
-        <Col>
-          <SurveyGraph />
-        </Col>
-      </Row>
+      <h1>Loading...</h1>
     </Jumbotron>
   );
 };

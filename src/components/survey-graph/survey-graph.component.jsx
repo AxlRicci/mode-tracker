@@ -11,7 +11,6 @@ import { ReactComponent as Schoolbus } from '../../assets/schoolbus.svg';
 import { ReactComponent as Car } from '../../assets/car.svg';
 
 const CustomizedLabel = ({ x, y, payload }) => {
-  console.log(payload.value);
   switch (payload.value) {
     case 'bike':
       return (

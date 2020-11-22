@@ -44,6 +44,12 @@ export const fetchUserDocument = async (uid) => {
   return userDoc.data();
 };
 
+export const fetchLocationDocument = async (id) => {
+  const locationRef = firestore.collection('/locations').doc(id);
+  const locationDoc = await locationRef.get();
+  return locationDoc.data();
+};
+
 /// Save profile updates to firestore.
 export const updateUserDocument = async (uid, userProfile) => {
   const userRef = firestore.collection('/users').doc(uid);
@@ -83,41 +89,32 @@ export const createNewSurveyDocument = async (survey, user) => {
 };
 
 // Get all data for surveys for a specific direction completed at a specific location
-export const getAllSurveyData = async (locationId, direction) => {
+export const getAllSurveyData = async (locationId, direction, format) => {
   const locationRef = firestore.collection('locations').doc(locationId);
   const locationDoc = await locationRef.get();
   const locationData = locationDoc.data();
-  const accumulator = {
-    bike: 0,
-    walk: 0,
-    roll: 0,
-    schoolbus: 0,
-    publicTrans: 0,
-    car: 0,
-  };
-  await locationData.surveys.forEach(async (survey) => {
-    const surveyDoc = await survey.get();
+
+  const tally = await locationData.surveys.reduce(async (acc, current) => {
+    const surveyDoc = await current.get();
     const surveyData = await surveyDoc.data();
     surveyData.data[direction].forEach((mode) => {
-      accumulator[mode.name] = +mode.value;
+      acc[mode.name] = (acc[mode.name] || 0) + mode.value;
     });
-  });
-  return accumulator;
-};
+    return acc;
+  }, {});
 
-// clean all survey data for rechart graphs
-export const graphiphyAllSurveyData = async (locationId, direction) => {
-  const data = await getAllSurveyData(locationId, direction);
-  console.log(data);
-  const cleanedFormat = [
-    { name: 'bike', value: data.bike },
-    { name: 'walk', value: data.walk },
-    { name: 'roll', value: data.roll },
-    { name: 'schoolbus', value: data.schoolbus },
-    { name: 'publicTrans', value: data.publicTrans },
-    { name: 'car', value: data.car },
-  ];
-  return cleanedFormat;
+  if (format === 'graph') {
+    const graphFormat = [
+      { name: 'bike', value: tally.bike },
+      { name: 'walk', value: tally.walk },
+      { name: 'roll', value: tally.roll },
+      { name: 'schoolbus', value: tally.schoolbus },
+      { name: 'publicTrans', value: tally.publicTrans },
+      { name: 'car', value: tally.car },
+    ];
+    return graphFormat;
+  }
+  return tally;
 };
 
 /// Create Location document in Firestore.
