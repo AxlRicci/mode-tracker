@@ -6,6 +6,7 @@ import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
+import Spinner from 'react-bootstrap/Spinner';
 
 import { firestore } from '../../firebase/firebase.utils';
 
@@ -33,41 +34,44 @@ const LocationPage = ({
     });
   }, [id, history]);
 
-  if (location) {
-    return (
-      <Container className="location-page">
-        <Row>
-          <Col>
-            <h1>{location.locationName}</h1>
-            <p>{location.locationAddress}</p>
-          </Col>
-          <Col className="d-flex justify-content-end align-items-center">
-            <Button
-              onClick={() => history.push('/survey')}
-              size="lg"
-            >{`Do a survey at ${location.locationName}`}</Button>
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <LocationOverview />
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <h2 className="mb-4">Recent Surveys</h2>
-            <SurveyList
-              query={{ field: 'location', value: location.locationId }}
-            />
-          </Col>
-        </Row>
-      </Container>
-    );
-  }
   return (
-    <div className="location-page">
-      <h1>Loading...</h1>
-    </div>
+    <Container fluid>
+      {location ? (
+        <>
+          <Row>
+            <Col>
+              <h1>{location.locationName}</h1>
+              <p>{location.locationAddress}</p>
+            </Col>
+            <Col className="d-flex justify-content-end align-items-center">
+              <Button
+                onClick={() => history.push('/survey')}
+                size="lg"
+              >{`Do a survey at ${location.locationName}`}</Button>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <LocationOverview />
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <h2 className="mb-4">Recent Surveys</h2>
+              <SurveyList
+                query={{ field: 'location', value: location.locationId }}
+              />
+            </Col>
+          </Row>
+        </>
+      ) : (
+        <Container className="d-flex justify-content-center">
+          <Spinner animation="border" role="status">
+            <span className="sr-only">Loading...</span>
+          </Spinner>
+        </Container>
+      )}
+    </Container>
   );
 };
 

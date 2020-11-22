@@ -50,7 +50,6 @@ const LocationOverview = ({
     };
 
     // Calculate transportation totals and percentages
-
     const calculateTotalSurveyed = (surveyDater) =>
       surveyDater.reduce((acc, current) => {
         let reassignedAcc = acc;
@@ -81,7 +80,6 @@ const LocationOverview = ({
       const locationInfo = await fetchLocationData();
       setLocationData(locationInfo);
       const surveyInfo = await fetchSurveyData();
-      console.log(surveyInfo);
       if (surveyInfo) {
         setSurveyData(surveyInfo);
         const amountSurveyed = calculateTotalSurveyed(surveyInfo);

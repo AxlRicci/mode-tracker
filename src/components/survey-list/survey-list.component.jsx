@@ -42,7 +42,9 @@ const SurveyList = ({ query }) => {
           <SurveyListCard key={survey.user} survey={survey} />
         ))
       ) : (
-        <h2>No surveys have been completed at this location.</h2>
+        <h6 className="muted">
+          No surveys have been completed at this location.
+        </h6>
       )}
     </CardGroup>
   );

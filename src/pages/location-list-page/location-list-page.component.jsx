@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
+
 import Container from 'react-bootstrap/Container';
-import { firestore, collectionRefToMap } from '../../firebase/firebase.utils';
+import Spinner from 'react-bootstrap/Spinner';
 
 import LocationList from '../../components/location-list/location-list.component';
+
+import { firestore, collectionRefToMap } from '../../firebase/firebase.utils';
 
 const LocationListPage = () => {
   const [locationList, setLocationList] = useState(null);
@@ -15,18 +18,22 @@ const LocationListPage = () => {
     });
   });
 
-  if (locationList) {
-    return (
-      <Container className="mt-3">
-        <h1 className="mb-5">All Schools</h1>
-        <LocationList locations={locationList} />
-      </Container>
-    );
-  }
   return (
-    <div className="location-list">
-      <h1>Loading...</h1>
-    </div>
+    <Container className="mt-3">
+      <h1 className="mb-5">All Schools</h1>
+      {locationList ? (
+        <LocationList locations={locationList} />
+      ) : (
+        <Container
+          className="d-flex justify-content-center align-items-center"
+          fluid
+        >
+          <Spinner animation="border" role="status">
+            <span className="sr-only">Loading...</span>
+          </Spinner>
+        </Container>
+      )}
+    </Container>
   );
 };
 
