@@ -17,12 +17,15 @@ const SurveyList = ({ query }) => {
       async (collectionSnapshot) => {
         const allSurveys = await collectionRefToMap(collectionSnapshot);
         if (query) {
-          setSurveyList(
-            allSurveys.filter((survey) => survey[query.field] === query.value)
+          const filteredSurveys = allSurveys.filter(
+            (survey) => survey[query.field] === query.value
           );
-        } else {
-          setSurveyList(allSurveys);
+          if (filteredSurveys.length > 0) {
+            return setSurveyList(filteredSurveys);
+          }
+          return setSurveyList(null);
         }
+        setSurveyList(allSurveys);
       },
       (err) => {
         console.log('error feching collection', err);
@@ -32,14 +35,15 @@ const SurveyList = ({ query }) => {
     // unsub from collection data stream.
     return () => firestore.collection('surveys').onSnapshot(() => {});
   }, [query]);
-
   return (
     <CardGroup>
-      {surveyList
-        ? surveyList.map((survey) => (
-            <SurveyListCard key={survey.user} survey={survey} />
-          ))
-        : null}
+      {surveyList ? (
+        surveyList.map((survey) => (
+          <SurveyListCard key={survey.user} survey={survey} />
+        ))
+      ) : (
+        <h2>No surveys have been completed at this location.</h2>
+      )}
     </CardGroup>
   );
 };

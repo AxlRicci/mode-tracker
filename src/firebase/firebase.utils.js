@@ -97,9 +97,12 @@ export const getAllSurveyData = async (locationId, direction, format) => {
   const tally = await locationData.surveys.reduce(async (acc, current) => {
     const surveyDoc = await current.get();
     const surveyData = await surveyDoc.data();
-    surveyData.data[direction].forEach((mode) => {
-      acc[mode.name] = (acc[mode.name] || 0) + mode.value;
-    });
+    if (surveyData) {
+      surveyData.data[direction].forEach((mode) => {
+        acc[mode.name] = (acc[mode.name] || 0) + mode.value;
+      });
+      return acc;
+    }
     return acc;
   }, {});
 

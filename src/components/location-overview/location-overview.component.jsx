@@ -30,23 +30,36 @@ const LocationOverview = ({
   const [locationData, setLocationData] = useState(null);
 
   useEffect(() => {
-    const fetchData = async () => {
+    // Fetch location data
+    const fetchLocationData = async () => {
       const locationDoc = await fetchLocationDocument(id);
-      setLocationData(locationDoc);
+      return locationDoc;
+    };
 
+    // Fetch survey data
+    const fetchSurveyData = async () => {
       const toData = await getAllSurveyData(id, 'to', 'graph');
       const fromData = await getAllSurveyData(id, 'from', 'graph');
-      const bothData = toData.map((mode, index) => ({
-        name: mode.name,
-        value: (mode.value += fromData[index].value),
-      }));
-      setSurveyData(bothData);
-      const total = bothData.reduce((acc, current) => {
+      if (toData[0].value && fromData[0].value) {
+        const bothData = toData.map((mode, index) => ({
+          name: mode.name,
+          value: (mode.value += fromData[index].value),
+        }));
+        return bothData;
+      }
+    };
+
+    // Calculate transportation totals and percentages
+
+    const calculateTotalSurveyed = (surveyDater) =>
+      surveyDater.reduce((acc, current) => {
         let reassignedAcc = acc;
         reassignedAcc += current.value;
         return reassignedAcc;
       }, 0);
-      const atTotal = bothData.reduce((acc, current) => {
+
+    const calculateTotalAt = (surveyDater) =>
+      surveyDater.reduce((acc, current) => {
         let reassignedAcc = acc;
         switch (current.name) {
           case 'bike':
@@ -63,20 +76,35 @@ const LocationOverview = ({
         }
         return reassignedAcc;
       }, 0);
-      setAtPercent((atTotal / total) * 100);
-      setTotalSurveyed(total);
+
+    const getData = async () => {
+      const locationInfo = await fetchLocationData();
+      setLocationData(locationInfo);
+      const surveyInfo = await fetchSurveyData();
+      console.log(surveyInfo);
+      if (surveyInfo) {
+        setSurveyData(surveyInfo);
+        const amountSurveyed = calculateTotalSurveyed(surveyInfo);
+        setTotalSurveyed(amountSurveyed);
+        const totalAt = calculateTotalAt(surveyInfo);
+        setAtPercent((totalAt / amountSurveyed) * 100);
+      }
     };
-    fetchData();
+
+    getData();
+
+    // if survey data exists clean it to be used in graph
+    // if survey data does not exist, set component into no-data state.
   }, [id]);
 
-  if (locationData) {
+  if (surveyData) {
     return (
       <Jumbotron>
         <Row>
-          <Col className="">
+          <Col>
             <h2>Overview</h2>
             <p>{`At ${locationData.locationName}, ${atPercent}% of students use sustainable modes of transportation (biking, walking, rolling) to get to and from school. 
-            In total ${totalSurveyed} students have been surveyed to gather this mode split`}</p>
+            In total ${totalSurveyed} students have been surveyed to gather this mode split.`}</p>
             <Button>Download Data</Button>
           </Col>
           <Col>
@@ -89,7 +117,7 @@ const LocationOverview = ({
 
   return (
     <Jumbotron>
-      <h1>Loading...</h1>
+      <h1>No transportation data available.</h1>
     </Jumbotron>
   );
 };

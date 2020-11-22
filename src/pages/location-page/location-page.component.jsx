@@ -5,7 +5,6 @@ import { withRouter } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
-import Jumbotron from 'react-bootstrap/Jumbotron';
 import Row from 'react-bootstrap/Row';
 
 import { firestore } from '../../firebase/firebase.utils';
@@ -42,8 +41,11 @@ const LocationPage = ({
             <h1>{location.locationName}</h1>
             <p>{location.locationAddress}</p>
           </Col>
-          <Col>
-            <Button size="lg">{`Do a survey at ${location.locationName}`}</Button>
+          <Col className="d-flex justify-content-end align-items-center">
+            <Button
+              onClick={() => history.push('/survey')}
+              size="lg"
+            >{`Do a survey at ${location.locationName}`}</Button>
           </Col>
         </Row>
         <Row>
@@ -51,7 +53,14 @@ const LocationPage = ({
             <LocationOverview />
           </Col>
         </Row>
-        <SurveyList query={{ field: 'location', value: location.locationId }} />
+        <Row>
+          <Col>
+            <h2 className="mb-4">Recent Surveys</h2>
+            <SurveyList
+              query={{ field: 'location', value: location.locationId }}
+            />
+          </Col>
+        </Row>
       </Container>
     );
   }
