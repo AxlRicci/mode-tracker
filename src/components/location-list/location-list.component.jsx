@@ -16,7 +16,10 @@ const LocationList = ({ locations, history }) => (
     </thead>
     <tbody>
       {locations.map((location) => (
-        <tr onClick={() => history.push(`/location/${location.locationId}`)}>
+        <tr
+          key={location.locationId}
+          onClick={() => history.push(`/location/${location.locationId}`)}
+        >
           <td>{location.locationName}</td>
           <td>{location.locationAddress}</td>
           <td>{location.locationType}</td>

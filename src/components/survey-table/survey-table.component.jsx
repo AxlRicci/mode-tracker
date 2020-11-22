@@ -43,13 +43,13 @@ const SurveyTable = ({ additionalClasses, survey }) => {
           <tr>
             <td>To School</td>
             {survey.to.map((mode) => (
-              <td>{mode.value}</td>
+              <td key={mode.name}>{mode.value}</td>
             ))}
           </tr>
           <tr>
             <td>From School</td>
             {survey.from.map((mode) => (
-              <td>{mode.value}</td>
+              <td key={mode.name}>{mode.value}</td>
             ))}
           </tr>
         </tbody>

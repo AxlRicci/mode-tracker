@@ -36,7 +36,9 @@ const SurveyList = ({ query }) => {
   return (
     <CardGroup>
       {surveyList
-        ? surveyList.map((survey) => <SurveyListCard survey={survey} />)
+        ? surveyList.map((survey) => (
+            <SurveyListCard key={survey.user} survey={survey} />
+          ))
         : null}
     </CardGroup>
   );

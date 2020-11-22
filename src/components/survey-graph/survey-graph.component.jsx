@@ -129,7 +129,7 @@ CustomizedLabel.propTypes = {
 
 SurveyGraph.propTypes = {
   additionalClasses: propTypes.string,
-  survey: propTypes.object,
+  survey: propTypes.array,
 };
 
 export default SurveyGraph;
