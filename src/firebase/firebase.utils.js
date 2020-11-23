@@ -69,9 +69,34 @@ export const collectionRefToMap = async (collection) => {
 
 /// Take form submission and update Firestore.
 export const createNewSurveyDocument = async (survey, user) => {
+  // format data
+  const formatted = {
+    createdAt: survey.createdAt,
+    grade: survey.grade,
+    location: survey.location,
+    user: survey.user,
+    data: {
+      to: [
+        { name: 'bike', value: parseInt(survey.data.tlBike) },
+        { name: 'walk', value: parseInt(survey.data.tlWalk) },
+        { name: 'roll', value: parseInt(survey.data.tlRoll) },
+        { name: 'schoolbus', value: parseInt(survey.data.tlSchoolbus) },
+        { name: 'publicTrans', value: parseInt(survey.data.tlPublicTrans) },
+        { name: 'car', value: parseInt(survey.data.tlCar) },
+      ],
+      from: [
+        { name: 'bike', value: parseInt(survey.data.flBike) },
+        { name: 'walk', value: parseInt(survey.data.flWalk) },
+        { name: 'roll', value: parseInt(survey.data.flRoll) },
+        { name: 'schoolbus', value: parseInt(survey.data.flSchoolbus) },
+        { name: 'publicTrans', value: parseInt(survey.data.flPublicTrans) },
+        { name: 'car', value: parseInt(survey.data.flCar) },
+      ],
+    },
+  };
   // create survey document in surveys collection
   const surveyRef = firestore.collection('/surveys').doc();
-  await surveyRef.set(survey);
+  await surveyRef.set(formatted);
   // add reference in user's surveys array. (incomplete - need reference to survey.)
   const userRef = firestore.collection('/users').doc(user.uid);
   await userRef.update({

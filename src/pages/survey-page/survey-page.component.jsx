@@ -1,13 +1,12 @@
 import React from 'react';
+import Container from 'react-bootstrap/Container';
 import TrackerForm from '../../components/tracker-form/tracker-form.component';
 
-import './survey-page.styles.scss';
-
 const SurveyPage = () => (
-  <div className="survey-page">
-    <h1>SurveyPage</h1>
+  <Container>
+    <h1>Do a quick hands up survey.</h1>
     <TrackerForm />
-  </div>
+  </Container>
 );
 
 export default SurveyPage;

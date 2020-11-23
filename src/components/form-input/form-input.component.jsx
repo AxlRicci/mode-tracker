@@ -24,6 +24,7 @@ const FormInput = ({
   <Form.Group as={Col} xs={xs} sm={sm} md={md} lg={lg} xl={xl} controlId={name}>
     <Form.Label>{label}</Form.Label>
     <Form.Control
+      name={name}
       onChange={handleChange}
       value={value}
       type={type}
