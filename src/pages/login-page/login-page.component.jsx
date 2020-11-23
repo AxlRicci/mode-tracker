@@ -14,7 +14,7 @@ const LoginPage = () => (
         <Col xs={12} md={6}>
           <h1>Welcome,</h1>
           <h5 className="mb-4">
-            Use the following options to sign in and sign up!
+            Use the following options to sign in or sign up!
           </h5>
           <p>
             Once you have a Modal account you can start to complete travel mode

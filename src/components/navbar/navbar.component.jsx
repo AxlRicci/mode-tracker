@@ -44,10 +44,16 @@ const Navigation = ({ history }) => {
           </Nav>
         ) : (
           <Nav className="ml-auto">
-            <Button className="mr-2 mb-2 mb-lg-0" variant="outline-primary">
+            <Button
+              onClick={() => history.push('/login')}
+              className="mr-2 mb-2 mb-lg-0"
+              variant="outline-primary"
+            >
               Sign In
             </Button>
-            <Button variant="primary">Create Account</Button>
+            <Button onClick={() => history.push('/login')} variant="primary">
+              Create Account
+            </Button>
           </Nav>
         )}
       </Navbar.Collapse>
