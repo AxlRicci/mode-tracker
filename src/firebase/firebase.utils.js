@@ -44,10 +44,21 @@ export const fetchUserDocument = async (uid) => {
   return userDoc.data();
 };
 
+/// Fetch a location document by ID
 export const fetchLocationDocument = async (id) => {
   const locationRef = firestore.collection('/locations').doc(id);
   const locationDoc = await locationRef.get();
   return locationDoc.data();
+};
+
+/// Fetch all location documents
+export const fetchAllLocationData = async () => {
+  const locationCollectionRef = firestore.collection('locations');
+  const locationCollectionData = await locationCollectionRef.get();
+  return locationCollectionData.docs.reduce((acc, curr) => {
+    acc.push(curr.data());
+    return acc;
+  }, []);
 };
 
 /// Save profile updates to firestore.
