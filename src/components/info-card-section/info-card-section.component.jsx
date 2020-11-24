@@ -22,7 +22,6 @@ const InfoCardSection = () => (
       <Col>
         <CardDeck>
           <Card>
-            <Card.Header>Step 1</Card.Header>
             <Card.Body>
               <Card.Title className="mb-3">
                 Choose your school from the list
@@ -41,7 +40,6 @@ const InfoCardSection = () => (
             </Card.Body>
           </Card>
           <Card>
-            <Card.Header>Step 2</Card.Header>
             <Card.Body>
               <Card.Title>Do a 30 second survey</Card.Title>
               <Card.Text>
@@ -51,7 +49,6 @@ const InfoCardSection = () => (
             </Card.Body>
           </Card>
           <Card>
-            <Card.Header>Step 3</Card.Header>
             <Card.Body>
               <Card.Title>See your Mode Split</Card.Title>
               <Card.Text>

@@ -11,21 +11,28 @@ import HeaderImage from '../../assets/undraw_walking_outside_5ueb.svg';
 const HeroSection = () => (
   <Container>
     <Row className="align-items-center" noGutters>
-      <Col xs={{ span: 12, order: 2 }} md={{ span: 6, order: 1 }}>
+      <Col xs={{ span: 12, order: 2 }} lg={{ span: 6, order: 1 }}>
         <Jumbotron className="pl-0 bg-white" bg="white">
-          <h1>Encourage Sustainable Travel At Your School</h1>
-          <p>
-            Modal is an online survey platform that focuses on tracking and
-            analysing travel mode split for school communities. With Modal you
-            can complete travel mode surveys in seconds from any device.
+          <span>
+            <h1 className="display-2 mb-0">Sit Less,</h1>
+            <h1 className="display-2">Walk More</h1>
+          </span>
+          <p className="lead">
+            Use Modal to encouraging sustainable school travel by tracking and
+            analysing travel mode split for school communities.
           </p>
           <p>
             <Button variant="primary">Get Started</Button>
           </p>
         </Jumbotron>
       </Col>
-      <Col xs={{ span: 12, order: 1 }} md={{ span: 6, order: 2 }}>
-        <Image alt="header image" src={HeaderImage} fluid />
+      <Col xs={{ span: 12, order: 1 }} lg={{ span: 6, order: 2 }}>
+        <Image
+          className="d-none d-lg-block"
+          alt="header image"
+          src={HeaderImage}
+          fluid
+        />
       </Col>
     </Row>
   </Container>
