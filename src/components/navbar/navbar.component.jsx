@@ -3,18 +3,24 @@ import propTypes from 'prop-types';
 import { Link, withRouter } from 'react-router-dom';
 
 import Button from 'react-bootstrap/Button';
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
+import firebase from '../../firebase/firebase.utils';
 
 import { UserContext } from '../../contexts/user.context';
 
 import { ReactComponent as Logo } from '../../assets/ko-fi.svg';
 
 const Navigation = ({ history }) => {
-  // const currentUser = useContext(UserContext);
-  const currentUser = null;
+  const currentUser = useContext(UserContext);
+
+  const handleSignOut = () => {
+    firebase.auth().signOut();
+    history.push('/');
+  };
 
   return (
     <Navbar bg="white" expand="xl">
@@ -36,15 +42,30 @@ const Navigation = ({ history }) => {
         </Nav>
         {currentUser ? (
           <Nav className="ml-auto">
-            <Button onClick={() => history.push('/survey')} variant="success">
+            <Button
+              className="mr-xl-2 mb-2 mb-xl-0"
+              onClick={() => history.push('/survey')}
+              variant="success"
+            >
               Start a survey
             </Button>
+            <ButtonGroup>
+              <Button
+                onClick={() => history.push('/profile')}
+                variant="primary"
+              >
+                Profile
+              </Button>
+              <Button onClick={handleSignOut} variant="danger">
+                Sign Out
+              </Button>
+            </ButtonGroup>
           </Nav>
         ) : (
           <Nav className="ml-auto">
             <Button
               onClick={() => history.push('/login')}
-              className="mr-2 mb-2 mb-lg-0"
+              className="mr-xl-2 mb-2 mb-xl-0"
               variant="outline-primary"
             >
               Sign In

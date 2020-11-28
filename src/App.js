@@ -29,6 +29,8 @@ const App = () => {
         setCurrentUser({
           ...userDoc,
         });
+      } else {
+        setCurrentUser(null);
       }
     });
   }, []);
