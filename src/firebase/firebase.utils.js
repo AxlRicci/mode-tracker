@@ -46,9 +46,11 @@ export const fetchUserDocument = async (uid) => {
 
 /// Fetch a location document by ID
 export const fetchLocationDocument = async (id) => {
-  const locationRef = firestore.collection('/locations').doc(id);
-  const locationDoc = await locationRef.get();
-  return locationDoc.data();
+  if (id) {
+    const locationRef = firestore.collection('/locations').doc(id);
+    const locationDoc = await locationRef.get();
+    return locationDoc.data();
+  }
 };
 
 /// Fetch all location documents

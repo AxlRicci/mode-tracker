@@ -21,11 +21,10 @@ const SurveyListCard = ({ survey, editable }) => {
       const locationDoc = await fetchLocationDocument(locationId);
       setLocation(locationDoc);
     };
-
     getLocationName(survey.location);
   }, [survey]);
 
-  if (survey) {
+  if (location) {
     const date = new Date(survey.createdAt);
     const year = date.getFullYear();
     const month = date.getMonth();

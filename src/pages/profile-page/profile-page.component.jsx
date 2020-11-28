@@ -1,41 +1,35 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { updateUserDocument } from '../../firebase/firebase.utils';
+import Container from 'react-bootstrap/Container';
+
+import ProfileDetails from '../../components/profile-details/profile-details.component';
+import SurveyList from '../../components/survey-list/survey-list.component';
 
 import { UserContext } from '../../contexts/user.context';
 
-import FormInput from '../../components/form-input/form-input.component';
-import GradePicker from '../../components/grade-picker/grade-picker.component';
-import LocationPicker from '../../components/location-picker/location-picker.component';
-
-import './profile-page.styles.scss';
+import { updateUserDocument } from '../../firebase/firebase.utils';
 
 const ProfilePage = () => {
   const user = useContext(UserContext);
+
   const [userProfile, setUserProfile] = useState({
+    uid: '',
     displayName: '',
     location: '',
-    grade: [],
+    grade: '',
   });
 
   useEffect(() => {
     if (user) {
       setUserProfile({
+        uid: user.uid,
         displayName: user.displayName,
         location: user.location,
-        grade: user.grade,
+        grade: user.grade || '1',
       });
     }
   }, [user]);
 
-  const handleFormInputChange = (event) => {
-    const { name, value } = event.target;
-    setUserProfile({
-      ...userProfile,
-      [name]: value,
-    });
-  };
-
-  const handlePickerChange = (event) => {
+  const handleChange = (event) => {
     const { name, value } = event.target;
     setUserProfile({
       ...userProfile,
@@ -49,25 +43,19 @@ const ProfilePage = () => {
 
   if (userProfile) {
     return (
-      <div className="profile-page">
-        <FormInput
-          label="Display Name"
-          name="displayName"
-          handleChange={handleFormInputChange}
-          value={userProfile.displayName}
+      <Container fluid>
+        <ProfileDetails
+          additionalClasses="mb-4"
+          userProfile={userProfile}
+          handleChange={handleChange}
+          handleSubmit={handleSubmit}
         />
-        <LocationPicker
-          value={userProfile.location}
-          handleChange={handlePickerChange}
+        <h3 className="mb-3">Recent Surveys</h3>
+        <SurveyList
+          query={{ field: 'user', value: userProfile.uid }}
+          editable
         />
-        <GradePicker
-          value={userProfile.grades}
-          handleChange={handlePickerChange}
-        />
-        <button type="button" onClick={handleSubmit}>
-          Save
-        </button>
-      </div>
+      </Container>
     );
   }
   return (
@@ -78,3 +66,33 @@ const ProfilePage = () => {
 };
 
 export default ProfilePage;
+
+// <div className="profile-page">
+//         <FormInput
+//           label="Display Name"
+//           name="displayName"
+//           handleChange={handleChange}
+//           value={userProfile.displayName}
+//         />
+//         <FormSelect
+//           name="location"
+//           label="School"
+//           handleChange={handleChange}
+//           value={userProfile.location}
+//           options={locations}
+//           optionKey="locationId"
+//           optionValue="locationId"
+//           optionLabelMain="locationName"
+//           optionLabelDesc="locationAddress"
+//         />
+//         <FormSelect
+//           name="grade"
+//           label="Grade"
+//           handleChange={handleChange}
+//           value={userProfile.grade}
+//           options={gradeOptions}
+//         />
+//         <button type="button" onClick={handleSubmit}>
+//           Save
+//         </button>
+//       </div>

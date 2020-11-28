@@ -60,7 +60,6 @@ const LocationPage = ({
               <h2 className="mb-4">Recent Surveys</h2>
               <SurveyList
                 query={{ field: 'location', value: location.locationId }}
-                editable
               />
             </Col>
           </Row>
