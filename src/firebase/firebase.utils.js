@@ -23,7 +23,6 @@ export const firestore = firebase.firestore();
 /// Create user document on signup.
 export const createUserDocument = async (authResult) => {
   const { user } = authResult;
-  console.log(user.uid);
   const userRef = firestore.collection('/users').doc(user.uid);
   const userDoc = await userRef.get();
 
@@ -222,12 +221,12 @@ export const createNewLocationDocument = async (result, name, type) => {
 export const uiConfig = {
   callbacks: {
     signInSuccessWithAuthResult: (authResult) => {
-      console.log(authResult);
       createUserDocument(authResult);
       // if first time user? direct to first time user documentation page?
-      return '/';
+      return true;
     },
   },
+  signInSuccessUrl: '/profile',
   signInFlow: 'popup',
   signInOptions: [
     firebase.auth.GoogleAuthProvider.PROVIDER_ID,

@@ -63,15 +63,8 @@ const Navigation = ({ history }) => {
           </Nav>
         ) : (
           <Nav className="ml-auto">
-            <Button
-              onClick={() => history.push('/login')}
-              className="mr-xl-2 mb-2 mb-xl-0"
-              variant="outline-primary"
-            >
-              Sign In
-            </Button>
             <Button onClick={() => history.push('/login')} variant="primary">
-              Create Account
+              Sign In
             </Button>
           </Nav>
         )}
