@@ -61,7 +61,7 @@ const SurveyDetailSection = ({ handleChange, formValues }) => {
             name="grade"
             label="Grade"
             handleChange={handleChange}
-            value={formValues.grade}
+            value={formValues.grade || '1'}
             options={gradeOptions}
           />
         </Jumbotron>

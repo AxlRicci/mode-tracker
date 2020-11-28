@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import propTypes from 'prop-types';
 
 import { ResponsiveContainer, BarChart, XAxis, YAxis, Bar } from 'recharts';
@@ -10,7 +10,7 @@ import { ReactComponent as PublicTrans } from '../../assets/publicTrans.svg';
 import { ReactComponent as Schoolbus } from '../../assets/schoolbus.svg';
 import { ReactComponent as Car } from '../../assets/car.svg';
 
-const CustomizedLabel = ({ x, y, payload }) => {
+const CustomizedTick = ({ x, y, payload }) => {
   switch (payload.value) {
     case 'bike':
       return (
@@ -106,22 +106,70 @@ const CustomizedLabel = ({ x, y, payload }) => {
   }
 };
 
-const SurveyGraph = ({ additionalClasses, survey }) => (
-  <ResponsiveContainer
-    className={`${additionalClasses}`}
-    width="100%"
-    height={215}
-  >
-    <BarChart layout="vertical" data={survey} barCategoryGap="1">
-      <YAxis dataKey="name" type="category" tick={<CustomizedLabel />} />
-      <XAxis type="number" />
-      <Bar dataKey="value" label={{ fill: 'white' }} />
-    </BarChart>
-  </ResponsiveContainer>
+const CustomizedLabel = ({ x, y, value }) => (
+  <g transform={`translate(${x}, ${y})`}>
+    <text
+      x={30}
+      y={20}
+      dy={0}
+      fontSize="16"
+      fontFamily="sans-serif"
+      fill="#fff"
+      textAnchor="middle"
+    >
+      {value}%
+    </text>
+  </g>
 );
 
-CustomizedLabel.propTypes = {
+const SurveyGraph = ({ additionalClasses, survey, percentage }) => {
+  const [graphData, setGraphData] = useState({});
+  useEffect(() => {
+    if (percentage) {
+      // Calculate transportation totals and percentages
+      const calculateTotalSurveyed = (surveyData) =>
+        surveyData.reduce((acc, current) => {
+          let reassignedAcc = acc;
+          reassignedAcc += current.value;
+          return reassignedAcc;
+        }, 0);
+
+      const calculatePercentage = (surveyData) => {
+        const totalSurveyed = calculateTotalSurveyed(survey);
+        return surveyData.map((mode) => ({
+          ...mode,
+          value: Math.round((mode.value / totalSurveyed) * 100),
+        }));
+      };
+      setGraphData(calculatePercentage(survey));
+    } else {
+      setGraphData(survey);
+    }
+  }, [percentage, survey]);
+
+  return (
+    <ResponsiveContainer
+      className={`${additionalClasses}`}
+      width="100%"
+      height={215}
+    >
+      <BarChart layout="vertical" data={graphData} barCategoryGap="1">
+        <YAxis dataKey="name" type="category" tick={<CustomizedTick />} />
+        <XAxis type="number" />
+        <Bar dataKey="value" label={<CustomizedLabel />} />
+      </BarChart>
+    </ResponsiveContainer>
+  );
+};
+
+CustomizedTick.propTypes = {
   payload: propTypes.object,
+  x: propTypes.number,
+  y: propTypes.number,
+};
+
+CustomizedLabel.propTypes = {
+  value: propTypes.number,
   x: propTypes.number,
   y: propTypes.number,
 };
@@ -129,6 +177,7 @@ CustomizedLabel.propTypes = {
 SurveyGraph.propTypes = {
   additionalClasses: propTypes.string,
   survey: propTypes.array,
+  percentage: propTypes.bool,
 };
 
 export default SurveyGraph;

@@ -1,25 +1,22 @@
 import React, { useState, useContext, useEffect } from 'react';
-import Button from 'react-bootstrap/Button';
-import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
 import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
-import Jumbotron from 'react-bootstrap/Jumbotron';
 
 import { createNewSurveyDocument } from '../../firebase/firebase.utils';
 
 import { UserContext } from '../../contexts/user.context';
 
-import FormSelect from '../form-select/form-select.component';
 import Survey from '../survey/survey.component';
 import SurveyDetailSection from '../survey-detail-section/survey-detail-section.component';
 import SurveyNavSection from '../survey-nav-section/survey-nav-section.component';
+import SurveyListCard from '../survey-list-card/survey-list-card.component';
 
 import './tracker-form.styles.scss';
 
 const TrackerForm = () => {
   const currentUser = useContext(UserContext);
   const [step, setStep] = useState(1);
+  const [survey, setSurvey] = useState();
   const [formValues, setFormValues] = useState({
     location: '',
     grade: '',
@@ -44,7 +41,7 @@ const TrackerForm = () => {
       setFormValues((fVals) => ({
         ...fVals,
         location: currentUser.location,
-        grade: currentUser.grade,
+        grade: currentUser.grade || '1',
       }));
     }
   }, [currentUser]);
@@ -80,12 +77,16 @@ const TrackerForm = () => {
         ...formValues.data,
       },
       user: currentUser.uid,
-      createdAt: new Date(),
+      createdAt: Date.now(),
     };
-    createNewSurveyDocument(surveyDocument, currentUser);
+    console.log('nowww');
+    const surveyDoc = await createNewSurveyDocument(
+      surveyDocument,
+      currentUser
+    );
     setFormValues({
-      location: '',
-      grade: '',
+      location: currentUser.location,
+      grade: currentUser.grade || '1',
       data: {
         tlBike: 0,
         tlWalk: 0,
@@ -101,12 +102,13 @@ const TrackerForm = () => {
         flCar: 0,
       },
     });
+    setSurvey(surveyDoc);
     setStep(3);
   };
 
   return (
     <Form>
-      {step === 3 ? <div>Thanks for submitting :)</div> : null}
+      {step === 3 ? <SurveyListCard survey={survey} /> : null}
       {step !== 3 ? (
         <SurveyDetailSection
           handleChange={handleInputChange}
@@ -139,6 +141,7 @@ const TrackerForm = () => {
             handleNavClick={handleNavClick}
             handleSubmit={handleSubmit}
             step={step}
+            location={formValues.location}
           />
         </Col>
       </Form.Row>

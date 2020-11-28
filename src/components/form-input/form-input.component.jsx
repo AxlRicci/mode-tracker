@@ -14,6 +14,8 @@ const FormInput = ({
   placeholder,
   type,
   value,
+  min,
+  max,
   xs,
   sm,
   md,
@@ -28,6 +30,8 @@ const FormInput = ({
       value={value}
       type={type}
       placeholder={placeholder || null}
+      min={min}
+      max={max}
     />
     {description ? (
       <Form.Text className="text-muted">{description}</Form.Text>
@@ -43,6 +47,8 @@ FormInput.propTypes = {
   placeholder: propTypes.string,
   type: propTypes.string,
   value: propTypes.oneOfType([propTypes.string, propTypes.number]),
+  min: propTypes.number,
+  max: propTypes.number,
   xs: propTypes.object,
   sm: propTypes.object,
   md: propTypes.object,
@@ -51,8 +57,3 @@ FormInput.propTypes = {
 };
 
 export default FormInput;
-
-// <div className="input-group">
-//     <label htmlFor={name}>{label}</label>
-//     <input onChange={handleChange} name={name} type={type} value={value} />
-//   </div>

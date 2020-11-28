@@ -22,6 +22,7 @@ const Survey = ({ handleInputChange, formValues, text, value }) => (
             handleChange={handleInputChange}
             name={`${value}Bike`}
             value={formValues.data[`${value}Bike`]}
+            min={0}
           />
         </Col>
       </Row>
@@ -40,6 +41,7 @@ const Survey = ({ handleInputChange, formValues, text, value }) => (
             handleChange={handleInputChange}
             name={`${value}Walk`}
             value={formValues.data[`${value}Walk`]}
+            min={0}
           />
         </Col>
       </Row>
@@ -58,6 +60,7 @@ const Survey = ({ handleInputChange, formValues, text, value }) => (
             handleChange={handleInputChange}
             name={`${value}Roll`}
             value={formValues.data[`${value}Roll`]}
+            min={0}
           />
         </Col>
       </Row>
@@ -78,6 +81,7 @@ const Survey = ({ handleInputChange, formValues, text, value }) => (
             handleChange={handleInputChange}
             name={`${value}PublicTrans`}
             value={formValues.data[[`${value}PublicTrans`]]}
+            min={0}
           />
         </Col>
       </Row>
@@ -96,6 +100,7 @@ const Survey = ({ handleInputChange, formValues, text, value }) => (
             handleChange={handleInputChange}
             name={`${value}Schoolbus`}
             value={formValues.data[`${value}Schoolbus`]}
+            min={0}
           />
         </Col>
       </Row>
@@ -114,6 +119,7 @@ const Survey = ({ handleInputChange, formValues, text, value }) => (
             handleChange={handleInputChange}
             name={`${value}Car`}
             value={formValues.data[`${value}Car`]}
+            min={0}
           />
         </Col>
       </Row>

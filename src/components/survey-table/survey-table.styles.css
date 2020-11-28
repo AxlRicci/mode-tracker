@@ -1,0 +1,15 @@
+.unstyled-button {
+  border: none;
+  background-color: transparent;
+  padding: 0;
+  margin: 0;
+  outline: none;
+}
+
+.unstyled-button:active {
+  outline: none;
+}
+
+.unstyled-button:focus {
+  outline: none;
+}

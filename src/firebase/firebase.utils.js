@@ -107,7 +107,7 @@ export const createNewSurveyDocument = async (survey, user) => {
   };
   // create survey document in surveys collection
   const surveyRef = firestore.collection('/surveys').doc();
-  await surveyRef.set(formatted);
+  await surveyRef.set({ ...formatted, surveyId: surveyRef.id });
   // add reference in user's surveys array. (incomplete - need reference to survey.)
   const userRef = firestore.collection('/users').doc(user.uid);
   await userRef.update({
@@ -122,6 +122,8 @@ export const createNewSurveyDocument = async (survey, user) => {
       firestore.collection('/surveys').doc(surveyRef.id)
     ),
   });
+
+  return formatted;
 };
 
 // Get all data for surveys for a specific direction completed at a specific location

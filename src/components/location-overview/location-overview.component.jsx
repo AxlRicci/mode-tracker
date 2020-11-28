@@ -5,7 +5,6 @@ import { withRouter } from 'react-router-dom';
 import Jumbotron from 'react-bootstrap/Jumbotron';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
-import Button from 'react-bootstrap/Button';
 import Spinner from 'react-bootstrap/Spinner';
 
 import SurveyGraph from '../survey-graph/survey-graph.component';
@@ -54,7 +53,7 @@ const LocationOverview = ({
     };
 
     // Calculate transportation totals and percentages
-    const calculateTotalSurveyed = (surveyDater) =>
+    const calculateTotalSurveyed = async (surveyDater) =>
       surveyDater.reduce((acc, current) => {
         let reassignedAcc = acc;
         reassignedAcc += current.value;
@@ -86,10 +85,10 @@ const LocationOverview = ({
       const surveyInfo = await fetchSurveyData();
       if (surveyInfo) {
         setSurveyData(surveyInfo);
-        const amountSurveyed = calculateTotalSurveyed(surveyInfo);
+        const amountSurveyed = await calculateTotalSurveyed(surveyInfo);
         setTotalSurveyed(amountSurveyed);
         const totalAt = calculateTotalAt(surveyInfo);
-        setAtPercent((totalAt / amountSurveyed) * 100);
+        setAtPercent(Math.round((totalAt / amountSurveyed) * 100));
       }
       setLoading(false);
     };
@@ -109,10 +108,9 @@ const LocationOverview = ({
               <h2>Overview</h2>
               <p>{`At ${locationData.locationName}, ${atPercent}% of students use sustainable modes of transportation (biking, walking, rolling) to get to and from school. 
             In total ${totalSurveyed} students have been surveyed to gather this mode split.`}</p>
-              <Button>Download Data</Button>
             </Col>
             <Col>
-              <SurveyGraph survey={surveyData} />
+              <SurveyGraph survey={surveyData} percentage />
             </Col>
           </Row>
         ) : (

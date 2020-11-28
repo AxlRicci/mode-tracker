@@ -12,8 +12,6 @@ import { UserContext } from '../../contexts/user.context';
 
 import { ReactComponent as Logo } from '../../assets/ko-fi.svg';
 
-import './navbar.styles.scss';
-
 const Navigation = ({ history }) => {
   // const currentUser = useContext(UserContext);
   const currentUser = null;

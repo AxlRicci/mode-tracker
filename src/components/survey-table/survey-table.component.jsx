@@ -1,6 +1,8 @@
 import React from 'react';
 import propTypes from 'prop-types';
 
+import Button from 'react-bootstrap/Button';
+import Figure from 'react-bootstrap/Figure';
 import Table from 'react-bootstrap/Table';
 
 import { ReactComponent as Bike } from '../../assets/bike.svg';
@@ -10,50 +12,91 @@ import { ReactComponent as PublicTrans } from '../../assets/publicTrans.svg';
 import { ReactComponent as Schoolbus } from '../../assets/schoolbus.svg';
 import { ReactComponent as Car } from '../../assets/car.svg';
 
+import './survey-table.styles.css';
+
 // Needs spinner but has if statement for now... fix dis plz
 
-const SurveyTable = ({ additionalClasses, survey }) => {
+const SurveyTable = ({ additionalClasses, survey, editable }) => {
+  const handleClick = (event) => {
+    // Add editable modal popup if survey is editable
+    console.log(event);
+    //
+  };
   if (survey) {
     return (
-      <Table className={`${additionalClasses}`} responsive>
-        <thead>
-          <tr>
-            <th>Direction</th>
-            <th>
-              <Bike width="30" height="30" />
-            </th>
-            <th>
-              <Walk width="30" height="30" />
-            </th>
-            <th>
-              <Roll width="30" height="30" />
-            </th>
-            <th>
-              <Schoolbus width="32" height="32" />
-            </th>
-            <th>
-              <PublicTrans width="30" height="30" />
-            </th>
-            <th>
-              <Car width="30" height="30" />
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>To School</td>
-            {survey.to.map((mode) => (
-              <td key={mode.name}>{mode.value}</td>
-            ))}
-          </tr>
-          <tr>
-            <td>From School</td>
-            {survey.from.map((mode) => (
-              <td key={mode.name}>{mode.value}</td>
-            ))}
-          </tr>
-        </tbody>
-      </Table>
+      <Figure style={{ width: '100%' }}>
+        <Table className={`${additionalClasses}`} responsive>
+          <thead>
+            <tr>
+              <th>Direction</th>
+              <th>
+                <Bike width="30" height="30" />
+              </th>
+              <th>
+                <Walk width="30" height="30" />
+              </th>
+              <th>
+                <Roll width="30" height="30" />
+              </th>
+              <th>
+                <Schoolbus width="32" height="32" />
+              </th>
+              <th>
+                <PublicTrans width="30" height="30" />
+              </th>
+              <th>
+                <Car width="30" height="30" />
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>To School</td>
+              {survey.to.map((mode) => (
+                <td key={mode.name}>
+                  {editable ? (
+                    <button
+                      className="unstyled-button"
+                      type="button"
+                      onClick={handleClick}
+                    >
+                      {mode.value}
+                    </button>
+                  ) : (
+                    mode.value
+                  )}
+                </td>
+              ))}
+            </tr>
+            <tr>
+              <td>From School</td>
+              {survey.from.map((mode) => (
+                <td key={mode.name}>
+                  {editable ? (
+                    <button
+                      className="unstyled-button"
+                      type="button"
+                      onClick={handleClick}
+                    >
+                      {mode.value}
+                    </button>
+                  ) : (
+                    mode.value
+                  )}
+                </td>
+              ))}
+            </tr>
+          </tbody>
+        </Table>
+        {editable ? (
+          <Figure.Caption className="text-center d-flex flex-column align-items-center">
+            <p className="mb-1">Click or tap a table cell to edit or:</p>
+            <Button size="sm" variant="danger">
+              Delete Survey
+            </Button>
+          </Figure.Caption>
+        ) : null}
+      </Figure>
     );
   }
   return <p>Spinner should be here...</p>;
@@ -62,6 +105,7 @@ const SurveyTable = ({ additionalClasses, survey }) => {
 SurveyTable.propTypes = {
   additionalClasses: propTypes.string,
   survey: propTypes.object,
+  editable: propTypes.bool,
 };
 
 export default SurveyTable;

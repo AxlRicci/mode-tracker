@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
+import propTypes from 'prop-types';
 
-import CardGroup from 'react-bootstrap/CardGroup';
+import CardDeck from 'react-bootstrap/CardDeck';
 import SurveyListCard from '../survey-list-card/survey-list-card.component';
 
 import { firestore, collectionRefToMap } from '../../firebase/firebase.utils';
 
-const SurveyList = ({ query }) => {
+const SurveyList = ({ query, editable }) => {
   const [surveyList, setSurveyList] = useState(null);
 
   useEffect(() => {
@@ -36,21 +36,26 @@ const SurveyList = ({ query }) => {
     return () => firestore.collection('surveys').onSnapshot(() => {});
   }, [query]);
   return (
-    <CardGroup>
+    <CardDeck className="d-flex flex-column">
       {surveyList ? (
         surveyList.map((survey) => (
-          <SurveyListCard key={survey.user} survey={survey} />
+          <SurveyListCard
+            key={survey.user} // change to survey id.. Needs to be added to survey submission in firebase utils
+            survey={survey}
+            editable={editable}
+          />
         ))
       ) : (
         <h6 className="muted">
           No surveys have been completed at this location.
         </h6>
       )}
-    </CardGroup>
+    </CardDeck>
   );
 };
 
 SurveyList.propTypes = {
-  query: PropTypes.object,
+  query: propTypes.object,
+  editable: propTypes.bool,
 };
 export default SurveyList;
