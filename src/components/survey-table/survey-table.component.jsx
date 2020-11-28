@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import propTypes from 'prop-types';
 
 import Button from 'react-bootstrap/Button';
 import Figure from 'react-bootstrap/Figure';
 import Table from 'react-bootstrap/Table';
+import Spinner from 'react-bootstrap/Spinner';
+import { deleteSurvey } from '../../firebase/firebase.utils';
+
+import SurveyEditModal from '../survey-edit-modal/survey-edit-modal.component';
 
 import { ReactComponent as Bike } from '../../assets/bike.svg';
 import { ReactComponent as Walk } from '../../assets/walk.svg';
@@ -17,14 +21,39 @@ import './survey-table.styles.css';
 // Needs spinner but has if statement for now... fix dis plz
 
 const SurveyTable = ({ additionalClasses, survey, editable }) => {
+  const [showModal, setShowModal] = useState(false);
+  const [modalInfo, setModalInfo] = useState({
+    direction: '',
+    name: '',
+    value: '',
+    surveyId: '',
+  });
+
+  const handleClose = () => setShowModal(false);
+
   const handleClick = (event) => {
     // Add editable modal popup if survey is editable
-    console.log(event);
-    //
+    setModalInfo({
+      direction: event.target.attributes.getNamedItem('direction').nodeValue,
+      name: event.target.name,
+      value: event.target.value,
+      surveyId: survey.surveyId,
+    });
+    setShowModal(true);
   };
+
+  const handleDelete = async () => {
+    await deleteSurvey(survey.surveyId);
+  };
+
   if (survey) {
     return (
       <Figure style={{ width: '100%' }}>
+        <SurveyEditModal
+          show={showModal}
+          handleClose={handleClose}
+          data={modalInfo}
+        />
         <Table className={`${additionalClasses}`} responsive>
           <thead>
             <tr>
@@ -52,13 +81,16 @@ const SurveyTable = ({ additionalClasses, survey, editable }) => {
           <tbody>
             <tr>
               <td>To School</td>
-              {survey.to.map((mode) => (
+              {survey.data.to.map((mode) => (
                 <td key={mode.name}>
                   {editable ? (
                     <button
                       className="unstyled-button"
                       type="button"
                       onClick={handleClick}
+                      name={mode.name}
+                      value={mode.value}
+                      direction="to"
                     >
                       {mode.value}
                     </button>
@@ -70,13 +102,16 @@ const SurveyTable = ({ additionalClasses, survey, editable }) => {
             </tr>
             <tr>
               <td>From School</td>
-              {survey.from.map((mode) => (
+              {survey.data.from.map((mode) => (
                 <td key={mode.name}>
                   {editable ? (
                     <button
                       className="unstyled-button"
                       type="button"
                       onClick={handleClick}
+                      name={mode.name}
+                      value={mode.value}
+                      direction="from"
                     >
                       {mode.value}
                     </button>
@@ -91,7 +126,7 @@ const SurveyTable = ({ additionalClasses, survey, editable }) => {
         {editable ? (
           <Figure.Caption className="text-center d-flex flex-column align-items-center">
             <p className="mb-1">Click or tap a table cell to edit or:</p>
-            <Button size="sm" variant="danger">
+            <Button onClick={handleDelete} size="sm" variant="danger">
               Delete Survey
             </Button>
           </Figure.Caption>
@@ -99,7 +134,11 @@ const SurveyTable = ({ additionalClasses, survey, editable }) => {
       </Figure>
     );
   }
-  return <p>Spinner should be here...</p>;
+  return (
+    <Spinner animation="boarder" role="status">
+      <span className="sr-only">Loading...</span>
+    </Spinner>
+  );
 };
 
 SurveyTable.propTypes = {

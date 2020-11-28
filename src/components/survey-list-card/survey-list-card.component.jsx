@@ -51,7 +51,7 @@ const SurveyListCard = ({ survey, editable }) => {
             <Tab eventKey="overview" title="Overview">
               <SurveyTable
                 additionalClasses="mt-4"
-                survey={survey.data}
+                survey={survey}
                 editable={editable}
               />
             </Tab>

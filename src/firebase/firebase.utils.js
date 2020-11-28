@@ -128,7 +128,45 @@ export const createNewSurveyDocument = async (survey, user) => {
   return formatted;
 };
 
-// Get all data for surveys for a specific direction completed at a specific location
+/// Update values in a survey.
+export const updateSurveyData = async (surveyId, newValueObject) => {
+  const surveyRef = firestore.collection('surveys').doc(surveyId);
+  const surveyDoc = await surveyRef.get();
+  const surveyData = surveyDoc.data();
+  return surveyRef
+    .update({
+      ...surveyData,
+      data: {
+        ...surveyData.data,
+        [newValueObject.direction]: [
+          ...surveyData.data[newValueObject.direction].map((mode) => {
+            if (mode.name === newValueObject.name) {
+              return { name: newValueObject.name, value: newValueObject.value };
+            }
+            return mode;
+          }),
+        ],
+      },
+    })
+    .then(() => {
+      console.log('updated survey..');
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};
+
+/// Delete survey.
+export const deleteSurvey = async (surveyId) => {
+  firestore
+    .collection('surveys')
+    .doc(surveyId)
+    .delete()
+    .then(() => console.log(`survey ${surveyId} deleted`))
+    .catch((err) => console.log('error removing document', err));
+};
+
+/// Get all data for surveys for a specific direction completed at a specific location
 export const getAllSurveyData = async (locationId, direction, format) => {
   const locationRef = firestore.collection('locations').doc(locationId);
   const locationDoc = await locationRef.get();
