@@ -18,14 +18,23 @@ firebase.initializeApp(firebaseConfig);
 // export firestore
 export const firestore = firebase.firestore();
 
-/// firestore utility functions ///
+/// firestore utility functions
+/// ///////////////////////////////////////////////////////////////////////////////////////
 
-/// Create user document on signup.
+///
+/// ** Create user document on signup **
+/// Notes: Runs everytime a user signs in.
+/// If a user does not exist in the database, the function will create a new record for that user.
+/// --> Retuns a user object
+/// /////////////////////////////////////
+
 export const createUserDocument = async (authResult) => {
+  // Take authResult from firebase.auth signin and query the database for the user's document.
   const { user } = authResult;
   const userRef = firestore.collection('/users').doc(user.uid);
   const userDoc = await userRef.get();
 
+  // If the document does not exist, a new document is created using the user data provided by authResult.
   if (!userDoc.exists) {
     await userRef.set({
       uid: user.uid,
@@ -34,35 +43,59 @@ export const createUserDocument = async (authResult) => {
       surveys: [],
     });
   }
+
+  // Returns the user data incase it is needed.
+  return user;
 };
 
-/// Fetch user profile data from firestore
+///
+/// ** Fetch user profile data **
+/// Notes: Fetches a user's document from the database using the unique user id.
+/// --> Returns the data from the user document.
+/// ////////////////////////////////////////
+
 export const fetchUserDocument = async (uid) => {
   const userRef = firestore.collection('/users').doc(uid);
   const userDoc = await userRef.get();
   return userDoc.data();
 };
 
-/// Fetch a location document by ID
-export const fetchLocationDocument = async (id) => {
-  if (id) {
-    const locationRef = firestore.collection('/locations').doc(id);
-    const locationDoc = await locationRef.get();
-    return locationDoc.data();
-  }
+///
+/// ** Fetch a location document **
+/// Notes: Fetches a location document from the database using a locationId.
+/// --> Returns a location object
+/// ////////////////////////////////////////
+
+export const fetchLocationDocument = async (locationId) => {
+  const locationRef = firestore.collection('/locations').doc(locationId);
+  const locationDoc = await locationRef.get();
+  return locationDoc.data();
 };
 
-/// Fetch all location documents
+///
+/// ** Fetch all location documents **
+/// Notes: Fetches all location documents available in the locations collection.
+/// --> Returns an array of location objects.
+/// ////////////////////////////////////////
+
 export const fetchAllLocationData = async () => {
   const locationCollectionRef = firestore.collection('locations');
   const locationCollectionData = await locationCollectionRef.get();
+
+  // Iterate through the documents within the collection reference.
   return locationCollectionData.docs.reduce((acc, curr) => {
+    // Get data from each document and add it to the reducer's accumulated array.
     acc.push(curr.data());
     return acc;
   }, []);
 };
 
-/// Save profile updates to firestore.
+///
+/// ** Save profile updates to firestore **
+/// Notes: Saves updates made to user profile to database.
+/// --> Returns nothing.
+/// ////////////////////////////////////////
+
 export const updateUserDocument = async (uid, userProfile) => {
   const userRef = firestore.collection('/users').doc(uid);
   const userData = await userRef.get().then((doc) => doc.data());
@@ -72,16 +105,30 @@ export const updateUserDocument = async (uid, userProfile) => {
   });
 };
 
-/// Take Collection Reference and create an array.
+///
+/// ** Map all documents in a collection **
+/// Notes: Takes a collection reference and iterates through all documents fetching data for each.
+/// --> Returns an array of document objects.
+/// ////////////////////////////////////////
+
 export const collectionRefToMap = async (collection) => {
   const documents = collection.docs;
   const collectionMap = await documents.map((document) => document.data());
   return collectionMap;
 };
 
-/// Take form submission and update Firestore.
+///
+/// ** Submit survey form to database **
+/// Notes: Takes a survey object and user object, varifies and formats the data and then makes multiple entries in the database.
+/// Entry 1: A survey document with the formatted survey is created in the surveys collection
+/// Entry 2: A reference (to the survey document) is added to the associated location document in the surveys array.
+/// Entry 3: A reference (to the survey document) is added to the associated user document in the surveys array.
+/// Entry 3 Note: If a user is not signed in, the reference will not be added to a user document and the userId of the survey will be set to 'anonymous'
+/// --> Returns the survey object formatted just as it is in the database.
+/// ////////////////////////////////////////
+
 export const createNewSurveyDocument = async (survey, user) => {
-  // format data
+  // format incoming survey and user data into form acceptable for database.
   const formatted = {
     createdAt: survey.createdAt,
     grade: survey.grade,
@@ -106,11 +153,14 @@ export const createNewSurveyDocument = async (survey, user) => {
       ],
     },
   };
-  // create survey document in surveys collection
+
+  // Create survey document in surveys collection
   const surveyRef = firestore.collection('/surveys').doc();
   await surveyRef.set({ ...formatted, surveyId: surveyRef.id });
 
-  // add reference in user's surveys array. (incomplete - need reference to survey.)
+  // Check if a user is associated with the incoming survey.
+  // If true, add reference in user's surveys array.
+  // If false, do not add a reference to a user's array.
   if (user) {
     const userRef = firestore.collection('/users').doc(user.uid);
     await userRef.update({
@@ -119,7 +169,8 @@ export const createNewSurveyDocument = async (survey, user) => {
       ),
     });
   }
-  // add reference to survey in location's surveys collection (incomplete - need reference to survey)
+
+  // Add reference to survey in location's surveys collection
   const locationRef = firestore.collection('/locations').doc(survey.location);
   await locationRef.update({
     surveys: firebase.firestore.FieldValue.arrayUnion(
@@ -127,38 +178,63 @@ export const createNewSurveyDocument = async (survey, user) => {
     ),
   });
 
+  // Return the survey object formatted in the same way as in the database.
   return formatted;
 };
 
-/// Update values in a survey.
+///
+/// ** Update mode values in a survey **
+/// Notes: Replaces the survey at a specific id with an newValueObject.
+/// The newValue object includes keys:
+/// + name: which value to replace (bike, walk, roll, etc)
+/// + direction: which direction the value belongs to (to, from)
+/// + value: the updated value
+/// --> Returns either success or error objects.
+/// ////////////////////////////////////////
+
 export const updateSurveyData = async (surveyId, newValueObject) => {
   const surveyRef = firestore.collection('surveys').doc(surveyId);
   const surveyDoc = await surveyRef.get();
   const surveyData = surveyDoc.data();
-  return surveyRef
+
+  // Attempt to update the survey.
+  surveyRef
     .update({
       ...surveyData,
       data: {
         ...surveyData.data,
         [newValueObject.direction]: [
+          // Spreads in the new survey data for a specific direction.
           ...surveyData.data[newValueObject.direction].map((mode) => {
+            // Checks to see if the current value is the value that needs to be updated.
             if (mode.name === newValueObject.name) {
+              // Updates the value by replacing its object.
               return { name: newValueObject.name, value: newValueObject.value };
             }
+            // If it is not the one to be updated the original is returned.
             return mode;
           }),
         ],
       },
     })
-    .then(() => {
-      console.log('updated survey..');
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+    .then(() => ({
+      name: 'success',
+      message: `successfully updated survey ${surveyId}`,
+    }))
+    .catch((err) => ({
+      name: 'error',
+      message: `An ${err.name} error occured: ${err.message}`,
+    }));
 };
 
-/// Delete survey.
+///
+/// ** Delete survey **
+/// Notes: Deletes a survey from the database using a surveyId.
+/// --> returns nothing (..yet, will have error handling).
+/// ////////////////////////////////////////
+
+// ** Needs to remove survey references from location as well as user!!
+
 export const deleteSurvey = async (surveyId) => {
   firestore
     .collection('surveys')
@@ -168,12 +244,20 @@ export const deleteSurvey = async (surveyId) => {
     .catch((err) => console.log('error removing document', err));
 };
 
-/// Get all data for surveys for a specific direction completed at a specific location
+///
+/// ** Fetch (and optionally format) data for a specific location and direction **
+/// Notes: Compiles the numbers for each mode type for all surveys for a specific direction.
+/// Graph format: formatted for recharts library (array of objects)
+/// Standard format: {[mode]: value, ...}
+/// --> Returns a compiled survey object (either in standard or graph format)
+/// ////////////////////////////////////////
+
 export const getAllSurveyData = async (locationId, direction, format) => {
   const locationRef = firestore.collection('locations').doc(locationId);
   const locationDoc = await locationRef.get();
   const locationData = locationDoc.data();
 
+  // iterates through all survey references for the location and uses reduce to add the results for each mode together.
   const tally = await locationData.surveys.reduce(async (acc, current) => {
     const surveyDoc = await current.get();
     const surveyData = await surveyDoc.data();
@@ -186,6 +270,7 @@ export const getAllSurveyData = async (locationId, direction, format) => {
     return acc;
   }, {});
 
+  // Checks for graph format type, returns if true.
   if (format === 'graph') {
     const graphFormat = [
       { name: 'bike', value: tally.bike },
@@ -197,35 +282,45 @@ export const getAllSurveyData = async (locationId, direction, format) => {
     ];
     return graphFormat;
   }
+  // If not graph format type, returns standard object.
   return tally;
 };
 
-/// Create Location document in Firestore.
+///
+/// ** Create Location document in Firestore **
+/// Notes: Takes a mapbox location search result object, checks for its existance in the database,
+/// then adds a new document to the locations collection.
+/// --> Returns: Location object if successful
+/// ////////////////////////////////////////
+
 export const createNewLocationDocument = async (result, name, type) => {
   const locationId = result.id.split('.')[1];
   const locationRef = firestore.collection('/locations').doc(locationId);
   const locationDoc = await locationRef.get();
 
   if (!locationDoc.exists) {
-    await locationRef.set({
+    const newLocation = {
       locationId,
       locationAddress: result.place_name,
       locationCoords: result.center,
       locationName: name,
       locationType: type,
       surveys: [],
-    });
-  } else {
-    throw new Error('location exists');
+    };
+    await locationRef.set(newLocation);
+    return newLocation;
   }
+  throw new Error('location exists');
 };
 
-/// configuration for auth ui ///
+///
+/// ** Configuration for Firebase auth ui **
+/// ////////////////////////////////////////
+
 export const uiConfig = {
   callbacks: {
     signInSuccessWithAuthResult: (authResult) => {
       createUserDocument(authResult);
-      // if first time user? direct to first time user documentation page?
       return true;
     },
   },

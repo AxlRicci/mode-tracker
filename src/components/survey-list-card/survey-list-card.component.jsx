@@ -18,8 +18,10 @@ const SurveyListCard = ({ survey, editable }) => {
 
   useEffect(() => {
     const getLocationName = async (locationId) => {
-      const locationDoc = await fetchLocationDocument(locationId);
-      setLocation(locationDoc);
+      if (locationId) {
+        const locationDoc = await fetchLocationDocument(locationId);
+        setLocation(locationDoc);
+      }
     };
     getLocationName(survey.location);
   }, [survey]);

@@ -35,8 +35,10 @@ const LocationOverview = ({
   useEffect(() => {
     // Fetch location data
     const fetchLocationData = async () => {
-      const locationDoc = await fetchLocationDocument(id);
-      return locationDoc;
+      if (id) {
+        const locationDoc = await fetchLocationDocument(id);
+        return locationDoc;
+      }
     };
 
     // Fetch survey data
