@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import Container from 'react-bootstrap/Container';
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
@@ -77,7 +78,7 @@ const LocationSearch = () => {
   };
 
   return (
-    <div className="place-search">
+    <Container>
       {alert ? (
         <Alert variant={alert.success ? 'success' : 'danger'}>
           {`${alert.msg}. `}
@@ -87,16 +88,16 @@ const LocationSearch = () => {
         </Alert>
       ) : null}
       <Form>
-        <Form.Row>
+        <Form.Row className="pl-1">
           <FormInput
             handleChange={handleFormInputChange}
-            label="Name"
+            label="School Name"
             placeholder="Enter name of school"
             name="locationName"
             value={location.locationName}
           />
         </Form.Row>
-        <Form.Row>
+        <Form.Row className="pl-1">
           <FormInput
             sm={{ span: 3 }}
             handleChange={handleFormInputChange}
@@ -113,7 +114,7 @@ const LocationSearch = () => {
             value={location.streetName}
           />
         </Form.Row>
-        <Form.Row>
+        <Form.Row className="pl-1">
           <FormInput
             md={{ span: 6 }}
             lg={{ span: 3 }}
@@ -151,7 +152,7 @@ const LocationSearch = () => {
             value={location.country}
           />
         </Form.Row>
-        <Button variant="primary" onClick={handleSubmit}>
+        <Button variant="info" onClick={handleSubmit}>
           Search
         </Button>
       </Form>
@@ -164,7 +165,7 @@ const LocationSearch = () => {
           />
         </div>
       ) : null}
-    </div>
+    </Container>
   );
 };
 

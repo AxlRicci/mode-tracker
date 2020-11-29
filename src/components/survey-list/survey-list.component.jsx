@@ -40,7 +40,7 @@ const SurveyList = ({ query, editable }) => {
       {surveyList ? (
         surveyList.map((survey) => (
           <SurveyListCard
-            key={survey.user} // change to survey id.. Needs to be added to survey submission in firebase utils
+            key={survey.surveyId}
             survey={survey}
             editable={editable}
           />

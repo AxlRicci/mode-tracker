@@ -123,7 +123,7 @@ const CustomizedLabel = ({ x, y, value }) => (
 );
 
 const SurveyGraph = ({ additionalClasses, survey, percentage }) => {
-  const [graphData, setGraphData] = useState({});
+  const [graphData, setGraphData] = useState([]);
   useEffect(() => {
     if (percentage) {
       // Calculate transportation totals and percentages
@@ -164,8 +164,8 @@ const SurveyGraph = ({ additionalClasses, survey, percentage }) => {
 
 CustomizedTick.propTypes = {
   payload: propTypes.object,
-  x: propTypes.number,
-  y: propTypes.number,
+  x: propTypes.any,
+  y: propTypes.any,
 };
 
 CustomizedLabel.propTypes = {

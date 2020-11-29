@@ -8,7 +8,12 @@ import { updateSurveyData } from '../../firebase/firebase.utils';
 import FormInput from '../form-input/form-input.component';
 
 const SurveyEditModal = ({ show, handleClose, data }) => {
-  const [modalData, setModalData] = useState({});
+  const [modalData, setModalData] = useState({
+    direction: '',
+    name: '',
+    value: 0,
+    surveyId: '',
+  });
 
   const handleChange = (event) =>
     setModalData({ ...modalData, value: event.target.value });
@@ -18,7 +23,6 @@ const SurveyEditModal = ({ show, handleClose, data }) => {
   };
 
   useEffect(() => {
-    console.log(data);
     setModalData(data);
   }, [data]);
 

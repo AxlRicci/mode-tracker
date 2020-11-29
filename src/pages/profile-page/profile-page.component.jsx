@@ -43,14 +43,16 @@ const ProfilePage = () => {
 
   if (userProfile) {
     return (
-      <Container fluid>
+      <Container className="mt-3" fluid>
         <ProfileDetails
           additionalClasses="mb-4"
           userProfile={userProfile}
           handleChange={handleChange}
           handleSubmit={handleSubmit}
         />
-        <h3 className="mb-3">Recent Surveys</h3>
+        <h3 className="mb-3 display-4 text-center text-md-left">
+          Recent Surveys
+        </h3>
         <SurveyList
           query={{ field: 'user', value: userProfile.uid }}
           editable

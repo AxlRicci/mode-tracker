@@ -47,7 +47,7 @@ const SurveyListCard = ({ survey, editable }) => {
           </div>
         </Card.Header>
         <Card.Body>
-          <Tabs variant="pills" defaultActiveKey="overview">
+          <Tabs variant="tabs" className="info" defaultActiveKey="overview">
             <Tab eventKey="overview" title="Overview">
               <SurveyTable
                 additionalClasses="mt-4"

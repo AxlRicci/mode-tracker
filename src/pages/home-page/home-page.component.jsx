@@ -7,11 +7,11 @@ import CtaSection from '../../components/cta-section/cta-section.component';
 
 const HomePage = ({ history }) => (
   <div className="home-page">
-    <HeroSection additionalClasses="home-page__hero" />
+    <HeroSection />
     <InfoCardSection />
     <CtaSection
       heading="Take Modal For A Spin"
-      subheading="Try Modal now, do a 30-second practice survey"
+      subheading="Try Modal now, do a 30-second practice survey!"
       buttonLabel="Try a Practice Survey"
     />
   </div>

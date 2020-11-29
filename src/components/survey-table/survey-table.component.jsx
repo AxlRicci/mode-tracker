@@ -49,11 +49,13 @@ const SurveyTable = ({ additionalClasses, survey, editable }) => {
   if (survey) {
     return (
       <Figure style={{ width: '100%' }}>
-        <SurveyEditModal
-          show={showModal}
-          handleClose={handleClose}
-          data={modalInfo}
-        />
+        {showModal ? (
+          <SurveyEditModal
+            show={showModal}
+            handleClose={handleClose}
+            data={modalInfo}
+          />
+        ) : null}
         <Table className={`${additionalClasses}`} responsive>
           <thead>
             <tr>

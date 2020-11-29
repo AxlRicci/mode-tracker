@@ -37,13 +37,11 @@ const TrackerForm = () => {
   });
 
   useEffect(() => {
-    if (currentUser) {
-      setFormValues((fVals) => ({
-        ...fVals,
-        location: currentUser.location,
-        grade: currentUser.grade || '1',
-      }));
-    }
+    setFormValues((fVals) => ({
+      ...fVals,
+      location: currentUser ? currentUser.location : '12232068545844200',
+      grade: currentUser ? currentUser.grade : '1',
+    }));
   }, [currentUser]);
 
   const handleInputChange = (event) => {
@@ -76,7 +74,7 @@ const TrackerForm = () => {
       data: {
         ...formValues.data,
       },
-      user: currentUser.uid,
+      user: currentUser ? currentUser.uid : 'anonymous',
       createdAt: Date.now(),
     };
     console.log('nowww');
@@ -85,8 +83,8 @@ const TrackerForm = () => {
       currentUser
     );
     setFormValues({
-      location: currentUser.location,
-      grade: currentUser.grade || '1',
+      location: currentUser ? currentUser.location : '12232068545844200',
+      grade: currentUser ? currentUser.grade : '1',
       data: {
         tlBike: 0,
         tlWalk: 0,
@@ -141,7 +139,7 @@ const TrackerForm = () => {
             handleNavClick={handleNavClick}
             handleSubmit={handleSubmit}
             step={step}
-            location={formValues.location}
+            locationId={formValues.location}
           />
         </Col>
       </Form.Row>

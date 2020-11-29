@@ -9,8 +9,7 @@ const LocationList = ({ locations, history }) => (
     <thead>
       <tr>
         <th>Name</th>
-        <th>Address</th>
-        <th>Type</th>
+        <th className="d-none d-md-table-cell">Address</th>
         <th>Score</th>
       </tr>
     </thead>
@@ -21,8 +20,7 @@ const LocationList = ({ locations, history }) => (
           onClick={() => history.push(`/location/${location.locationId}`)}
         >
           <td>{location.locationName}</td>
-          <td>{location.locationAddress}</td>
-          <td>{location.locationType}</td>
+          <td className="d-none d-md-table-cell">{location.locationAddress}</td>
           <td>98%</td>
         </tr>
       ))}

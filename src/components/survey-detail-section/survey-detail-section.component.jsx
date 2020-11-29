@@ -42,10 +42,8 @@ const SurveyDetailSection = ({ handleChange, formValues }) => {
   return (
     <Form.Row>
       <Col>
-        <Jumbotron>
-          <h4 className="mb-3 pl-3">
-            What school and grade is this survey for?
-          </h4>
+        <Jumbotron className="bg-info text-white mb-2">
+          <h4 className="mb-3">What school and grade is this survey for?</h4>
           <FormSelect
             name="location"
             label="School"

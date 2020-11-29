@@ -86,7 +86,7 @@ export const createNewSurveyDocument = async (survey, user) => {
     createdAt: survey.createdAt,
     grade: survey.grade,
     location: survey.location,
-    user: survey.user,
+    user: survey.user || 'anonymous',
     data: {
       to: [
         { name: 'bike', value: parseInt(survey.data.tlBike) },
@@ -109,13 +109,16 @@ export const createNewSurveyDocument = async (survey, user) => {
   // create survey document in surveys collection
   const surveyRef = firestore.collection('/surveys').doc();
   await surveyRef.set({ ...formatted, surveyId: surveyRef.id });
+
   // add reference in user's surveys array. (incomplete - need reference to survey.)
-  const userRef = firestore.collection('/users').doc(user.uid);
-  await userRef.update({
-    surveys: firebase.firestore.FieldValue.arrayUnion(
-      firestore.collection('/surveys').doc(surveyRef.id)
-    ),
-  });
+  if (user) {
+    const userRef = firestore.collection('/users').doc(user.uid);
+    await userRef.update({
+      surveys: firebase.firestore.FieldValue.arrayUnion(
+        firestore.collection('/surveys').doc(surveyRef.id)
+      ),
+    });
+  }
   // add reference to survey in location's surveys collection (incomplete - need reference to survey)
   const locationRef = firestore.collection('/locations').doc(survey.location);
   await locationRef.update({

@@ -101,7 +101,7 @@ const LocationOverview = ({
 
   if (!loading) {
     return (
-      <Jumbotron>
+      <Jumbotron className="bg-light">
         {surveyData ? (
           <Row>
             <Col>

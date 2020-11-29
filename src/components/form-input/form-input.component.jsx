@@ -22,7 +22,16 @@ const FormInput = ({
   lg,
   xl,
 }) => (
-  <Form.Group as={Col} xs={xs} sm={sm} md={md} lg={lg} xl={xl} controlId={name}>
+  <Form.Group
+    as={Col}
+    xs={xs}
+    sm={sm}
+    md={md}
+    lg={lg}
+    xl={xl}
+    controlId={name}
+    className="pl-0"
+  >
     <Form.Label>{label}</Form.Label>
     <Form.Control
       name={name}

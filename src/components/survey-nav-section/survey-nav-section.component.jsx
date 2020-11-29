@@ -10,7 +10,7 @@ const SurveyNavSection = ({
   handleNavClick,
   step,
   history,
-  location,
+  locationId,
 }) => (
   <ButtonToolbar className="d-flex justify-content-end mt-3">
     <ButtonGroup className="mr-3">
@@ -20,7 +20,7 @@ const SurveyNavSection = ({
         </Button>
       ) : null}
       {step === 3 ? (
-        <Button variant="primary" onClick={() => handleNavClick(1)}>
+        <Button variant="info" onClick={() => handleNavClick(1)}>
           Start Another Survey
         </Button>
       ) : null}
@@ -32,14 +32,14 @@ const SurveyNavSection = ({
         </Button>
       ) : null}
       {step === 1 ? (
-        <Button variant="primary" onClick={() => handleNavClick(2)}>
+        <Button variant="info" onClick={() => handleNavClick(2)}>
           Next
         </Button>
       ) : null}
       {step === 3 ? (
         <Button
           variant="success"
-          onClick={() => history.push(`location/${location}`)}
+          onClick={() => history.push(`/location/${locationId}`)}
         >
           Back to Location Page
         </Button>
@@ -53,7 +53,7 @@ SurveyNavSection.propTypes = {
   handleNavClick: propTypes.func,
   step: propTypes.number,
   history: propTypes.object,
-  location: propTypes.string,
+  locationId: propTypes.string,
 };
 
 export default withRouter(SurveyNavSection);

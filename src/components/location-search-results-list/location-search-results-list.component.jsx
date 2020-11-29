@@ -16,14 +16,14 @@ const LocationSearchResultsList = ({ handleClick, results }) => (
             sm={8}
             className="d-flex align-items-center justify-content-start"
           >
-            <h5>{result.place_name}</h5>
+            <p className="lead">{result.place_name}</p>
           </Col>
           <Col
             xs={12}
             sm={4}
             className="d-flex flex-sm-row align-items-center justify-content-center justify-content-sm-end"
           >
-            <Button className="" onClick={() => handleClick(result)}>
+            <Button variant="info" onClick={() => handleClick(result)}>
               Select
             </Button>
           </Col>

@@ -12,7 +12,7 @@ import firebase from '../../firebase/firebase.utils';
 
 import { UserContext } from '../../contexts/user.context';
 
-import { ReactComponent as Logo } from '../../assets/ko-fi.svg';
+import { ReactComponent as Logo } from '../../assets/m.svg';
 
 const Navigation = ({ history }) => {
   const currentUser = useContext(UserContext);
@@ -25,7 +25,7 @@ const Navigation = ({ history }) => {
   return (
     <Navbar bg="white" expand="xl">
       <Navbar.Brand as={Link} to="/">
-        Modal
+        <Logo style={{ width: '40px', height: '40px' }} />
       </Navbar.Brand>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">
@@ -47,23 +47,20 @@ const Navigation = ({ history }) => {
               onClick={() => history.push('/survey')}
               variant="success"
             >
-              Start a survey
+              Start A Survey
             </Button>
-            <ButtonGroup>
-              <Button
-                onClick={() => history.push('/profile')}
-                variant="primary"
-              >
+            <NavDropdown title="Profile">
+              <NavDropdown.Item as={Link} to="/profile">
                 Profile
-              </Button>
-              <Button onClick={handleSignOut} variant="danger">
-                Sign Out
-              </Button>
-            </ButtonGroup>
+              </NavDropdown.Item>
+              <NavDropdown.Item onClick={handleSignOut}>
+                SignOut
+              </NavDropdown.Item>
+            </NavDropdown>
           </Nav>
         ) : (
           <Nav className="ml-auto">
-            <Button onClick={() => history.push('/login')} variant="primary">
+            <Button onClick={() => history.push('/login')} variant="info">
               Sign In
             </Button>
           </Nav>

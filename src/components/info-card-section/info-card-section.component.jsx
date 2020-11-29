@@ -1,47 +1,31 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 
 import Card from 'react-bootstrap/Card';
 import CardDeck from 'react-bootstrap/CardDeck';
 import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
-import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
-import Image from 'react-bootstrap/Image';
-
-import GraduationCap from '../../assets/graduation-cap.svg';
-import HandPaper from '../../assets/hand-paper-o.svg';
-import LineChart from '../../assets/line-chart.svg';
 
 const InfoCardSection = () => (
-  <Container className="mt-5">
+  <Container className="mt-3">
     <Row>
-      <h2 className="pl-3 mb-4">How it works</h2>
+      <h2 className="pl-3 mb-4 display-4">How it works</h2>
     </Row>
     <Row>
       <Col>
         <CardDeck>
           <Card>
             <Card.Body>
-              <Card.Title className="mb-3">
-                Choose your school from the list
-              </Card.Title>
-              <Form.Control as="select" className="mb-3">
-                <option>1</option>
-                <option>1</option>
-                <option>1</option>
-                <option>1</option>
-                <option>1</option>
-                <option>1</option>
-              </Form.Control>
+              <Card.Title className="mb-3">1. Gather your students</Card.Title>
               <Card.Text>
-                Don't see it? <Link to="/add-location">Add a school</Link>
+                A Modal hands up survey can be done anytime during the school
+                day with all class sizes.
               </Card.Text>
             </Card.Body>
           </Card>
           <Card>
             <Card.Body>
-              <Card.Title>Do a 30 second survey</Card.Title>
+              <Card.Title>2. Do a 30 second survey</Card.Title>
               <Card.Text>
                 A simple hands-up survey asking your class how they traveled to
                 school today and how they plan on travelling home.
@@ -50,7 +34,7 @@ const InfoCardSection = () => (
           </Card>
           <Card>
             <Card.Body>
-              <Card.Title>See your Mode Split</Card.Title>
+              <Card.Title>3. See your Mode Split</Card.Title>
               <Card.Text>
                 See your mode split today and analyse how it changes it over
                 time.
