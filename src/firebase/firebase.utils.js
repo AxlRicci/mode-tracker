@@ -31,37 +31,68 @@ export const createUserDocument = async (authResult) => {
   // Take authResult from firebase.auth signin and query the database for the user's document.
   const { user } = authResult;
   const userRef = firestore.doc(`/users/${user.uid}`);
-  const userDoc = await userRef.get();
-  // If the document does not exist, a new document is created using the user data provided by authResult.
-  if (!userDoc.exists) {
-    await userRef.set({
-      uid: user.uid,
-      displayName: user.displayName,
-      createdAt: new Date(),
-      surveys: [],
-    });
-  }
+  userRef.get().then((userDoc) => {
+    // If the document does not exist, a new document is created using the user data provided by authResult.
+    if (!userDoc.exists) {
+      userRef
+        .set({
+          uid: user.uid,
+          displayName: user.displayName,
+          createdAt: new Date(),
+          surveys: [],
+        })
+        .then(() => console.log('New user document successfully created'))
+        .catch((error) => {
+          console.error(
+            'There was an error when creating a new user document: ',
+            error
+          );
+        });
+    }
+  });
   return user; // Returns the user data incase it is needed.
 };
 
 ///
 /// ** Fetch user profile data **
 /// Notes: Fetches a user's document from the database using the unique user id.
-/// --> Returns the data from the user document.
+/// --> Returns the data from the user document or error object.
 /// ////////////////////////////////////////
 export const fetchUserDocument = async (uid) => {
-  const userDoc = await firestore.doc(`/users/${uid}`).get();
-  return userDoc.data();
+  const userRef = firestore.doc(`/users/${uid}`);
+  return userRef
+    .get()
+    .then((userDoc) => {
+      if (userDoc.exists) {
+        console.log('User document successfully fetched.');
+        return userDoc.data();
+      }
+      console.log('no such user document!');
+    })
+    .catch((error) => {
+      console.error('...error fetching user document: ', error);
+    });
 };
 
 ///
 /// ** Fetch a location document **
 /// Notes: Fetches a location document from the database using a locationId.
-/// --> Returns a location object
+/// --> Returns a location object. On error returns an error object
 /// ////////////////////////////////////////
 export const fetchLocationDocument = async (locationId) => {
-  const locationDoc = await firestore.doc(`locations/${locationId}`).get();
-  return locationDoc.data();
+  const locationRef = firestore.doc(`locations/${locationId}`);
+  return locationRef
+    .get()
+    .then((locationDoc) => {
+      if (locationDoc.exists) {
+        console.log('Location document successfully fetched.');
+        return locationDoc.data();
+      }
+      console.log('No such document!');
+    })
+    .catch((error) => {
+      console.error('Error fetching location document: ', error);
+    });
 };
 
 ///
@@ -70,13 +101,21 @@ export const fetchLocationDocument = async (locationId) => {
 /// --> Returns an array of location objects.
 /// ////////////////////////////////////////
 export const fetchAllLocationData = async () => {
-  const locationCollection = await firestore.collection(`locations`).get();
-  // Iterate through the documents within the collection reference.
-  const locationsArray = locationCollection.docs.reduce((acc, curr) => {
-    acc.push(curr.data()); // Get data from each document and add it to the reducer's accumulated array.
-    return acc;
-  }, []);
-  return locationsArray; // Returns array of location documents.
+  const locationCollectionRef = firestore.collection(`locations`);
+  return locationCollectionRef
+    .get()
+    .then((locationCollection) => {
+      // Iterate through the documents within the collection reference.
+      const locationsArray = locationCollection.docs.reduce((acc, curr) => {
+        acc.push(curr.data()); // Get data from each document and add it to the reducer's accumulated array.
+        return acc;
+      }, []);
+      console.log('All location data successfully fetched');
+      return locationsArray; // Returns array of location documents.
+    })
+    .catch((error) => {
+      console.error('An error occured when fetching location data: ', error);
+    });
 };
 
 ///
@@ -86,11 +125,31 @@ export const fetchAllLocationData = async () => {
 /// ////////////////////////////////////////
 export const updateUserDocument = async (uid, userProfile) => {
   const userRef = firestore.doc(`users/${uid}`);
-  const userData = await userRef.get().then((doc) => doc.data());
-  userRef.set({
-    ...userData,
-    ...userProfile,
-  });
+  userRef
+    .get()
+    .then((userDoc) => {
+      if (userDoc.exists) {
+        const userData = userDoc.data();
+        userRef
+          .set({
+            ...userData,
+            ...userProfile,
+          })
+          .then(() => console.log('User document successfully updated'))
+          .catch((error) => {
+            console.error(
+              'An error occured while updaing user document: ',
+              error
+            );
+          });
+      }
+    })
+    .catch((error) => {
+      console.error(
+        'An error occured when fetching the user document: ',
+        error
+      );
+    });
 };
 
 ///
@@ -114,7 +173,7 @@ export const collectionRefToMap = async (collection) => {
 /// --> Returns the survey object formatted just as it is in the database.
 /// ////////////////////////////////////////
 export const createNewSurveyDocument = async (survey, user) => {
-  // format incoming survey and user data into form acceptable for database.
+  // Format incoming survey and user data into form acceptable for database.
   const formatted = {
     createdAt: survey.createdAt,
     grade: survey.grade,
@@ -141,26 +200,54 @@ export const createNewSurveyDocument = async (survey, user) => {
   };
   // Create survey document in surveys collection
   const surveyRef = firestore.collection('/surveys').doc();
-  await surveyRef.set({ ...formatted, surveyId: surveyRef.id });
+  const firestoreSurvey = { ...formatted, surveyId: surveyRef.id };
+  surveyRef
+    .set(firestoreSurvey)
+    .then(() => {
+      console.log('Successfully created new survey document');
+    })
+    .catch((error) => {
+      console.error('Error creating new survey document', error);
+    });
   // Check if a user is associated with the incoming survey.
   // If true, add reference in user's surveys array.
   // If false, do not add a reference to a user's array.
   if (user) {
     const userRef = firestore.doc(`users/${user.uid}`);
-    await userRef.update({
-      surveys: firebase.firestore.FieldValue.arrayUnion(
-        firestore.doc(`surveys/${surveyRef.id}`)
-      ),
-    });
+    userRef
+      .update({
+        surveys: firebase.firestore.FieldValue.arrayUnion(
+          firestore.doc(`surveys/${surveyRef.id}`)
+        ),
+      })
+      .then(() => {
+        console.log('Successfully created survey reference in user document');
+      })
+      .catch((error) => {
+        console.error(
+          'Error creating survey reference in user document: ',
+          error
+        );
+      });
   }
   // Add reference to survey in location's surveys collection
   const locationRef = firestore.doc(`locations/${survey.location}`);
-  await locationRef.update({
-    surveys: firebase.firestore.FieldValue.arrayUnion(
-      firestore.doc(`surveys/${surveyRef.id}`)
-    ),
-  });
-  return formatted; // Return the survey object formatted in the same way as in the database
+  locationRef
+    .update({
+      surveys: firebase.firestore.FieldValue.arrayUnion(
+        firestore.doc(`surveys/${surveyRef.id}`)
+      ),
+    })
+    .then(() => {
+      console.log('Successfully created survey reference in location document');
+    })
+    .catch((error) => {
+      console.error(
+        'Error creating survey reference in location document: ',
+        error
+      );
+    });
+  return firestoreSurvey; // Return the survey object identical to the database object.
 };
 
 ///
@@ -196,14 +283,12 @@ export const updateSurveyData = async (surveyId, newValueObject) => {
         ],
       },
     })
-    .then(() => ({
-      name: 'success',
-      message: `successfully updated survey ${surveyId}`,
-    }))
-    .catch((err) => ({
-      name: 'error',
-      message: `An ${err.name} error occured: ${err.message}`,
-    }));
+    .then(() => {
+      console.log('Successfully updated survey data cell');
+    })
+    .catch((error) =>
+      console.error('An error occurred when updating survey data cell: ', error)
+    );
 };
 
 ///
@@ -219,8 +304,8 @@ export const deleteSurvey = async (surveyId) => {
     .collection('surveys')
     .doc(surveyId)
     .delete()
-    .then(() => console.log(`survey ${surveyId} deleted`))
-    .catch((err) => console.log('error removing document', err));
+    .then(() => console.log(`survey ${surveyId} successfully deleted`))
+    .catch((error) => console.log('error deleting survey document', error));
 };
 
 ///
@@ -231,21 +316,40 @@ export const deleteSurvey = async (surveyId) => {
 /// --> Returns a compiled survey object (either in standard or graph format)
 /// ////////////////////////////////////////
 export const getAllSurveyData = async (locationId, direction, format) => {
-  const locationDoc = await firestore.doc(`locations/${locationId}`).get();
-  const locationData = locationDoc.data();
+  const locationRef = firestore.doc(`locations/${locationId}`);
+  const locationData = await locationRef
+    .get()
+    .then((locationDoc) => {
+      console.log('Successfully fetched all survey data');
+      return locationDoc.data();
+    })
+    .catch((error) => {
+      console.error('An error occured while fetching survey data: ', error);
+    });
 
   // iterates through all survey references for the location and uses reduce to add the results for each mode together.
-  const tally = await locationData.surveys.reduce(async (acc, current) => {
-    const surveyDoc = await current.get();
-    const surveyData = await surveyDoc.data();
-    if (surveyData) {
-      surveyData.data[direction].forEach((mode) => {
-        acc[mode.name] = (acc[mode.name] || 0) + mode.value;
-      });
-      return acc;
-    }
-    return acc;
-  }, {});
+  const tally = await locationData.surveys.reduce(
+    async (acc, current) =>
+      current
+        .get()
+        .then((surveyDoc) => {
+          const surveyData = surveyDoc.data();
+          if (surveyData) {
+            surveyData.data[direction].forEach((mode) => {
+              acc[mode.name] = (acc[mode.name] || 0) + mode.value;
+            });
+            return acc;
+          }
+          return acc;
+        })
+        .catch((error) => {
+          console.error(
+            'An error occurred when fetching location data: ',
+            error
+          );
+        }),
+    {}
+  );
 
   // Checks for graph format type, returns if true.
   if (format === 'graph') {
@@ -272,20 +376,37 @@ export const getAllSurveyData = async (locationId, direction, format) => {
 export const createNewLocationDocument = async (result, name, type) => {
   const locationId = result.id.split('.')[1];
   const locationRef = firestore.doc(`locations/${locationId}`);
-  const locationDoc = await locationRef.get();
+  locationRef
+    .get()
+    .then((locationDoc) => {
+      if (!locationDoc.exists) {
+        const newLocation = {
+          locationId,
+          locationAddress: result.place_name,
+          locationCoords: result.center,
+          locationName: name,
+          locationType: type,
+          surveys: [],
+        };
+        locationRef
+          .set(newLocation)
+          .then(() => console.log('New Location Document successfully created'))
+          .catch((error) =>
+            console.error(
+              'An error occured when creating a new location document: ',
+              error
+            )
+          );
+        return newLocation;
+      }
+    })
+    .catch((error) => {
+      console.error(
+        'An error occured when fetching the location document: ',
+        error
+      );
+    });
 
-  if (!locationDoc.exists) {
-    const newLocation = {
-      locationId,
-      locationAddress: result.place_name,
-      locationCoords: result.center,
-      locationName: name,
-      locationType: type,
-      surveys: [],
-    };
-    await locationRef.set(newLocation);
-    return newLocation;
-  }
   throw new Error('location exists');
 };
 

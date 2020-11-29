@@ -33,6 +33,7 @@ const SurveyTable = ({ additionalClasses, survey, editable }) => {
 
   const handleClick = (event) => {
     // Add editable modal popup if survey is editable
+    console.log(survey);
     setModalInfo({
       direction: event.target.attributes.getNamedItem('direction').nodeValue,
       name: event.target.name,

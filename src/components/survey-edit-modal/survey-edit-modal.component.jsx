@@ -20,6 +20,7 @@ const SurveyEditModal = ({ show, handleClose, data }) => {
 
   const handleSubmit = async () => {
     await updateSurveyData(modalData.surveyId, modalData);
+    handleClose();
   };
 
   useEffect(() => {

@@ -9,7 +9,7 @@ import { UserContext } from '../../contexts/user.context';
 import Survey from '../survey/survey.component';
 import SurveyDetailSection from '../survey-detail-section/survey-detail-section.component';
 import SurveyNavSection from '../survey-nav-section/survey-nav-section.component';
-import SurveyListCard from '../survey-list-card/survey-list-card.component';
+import SurveyList from '../survey-list/survey-list.component';
 
 import './tracker-form.styles.scss';
 
@@ -77,11 +77,11 @@ const TrackerForm = () => {
       user: currentUser ? currentUser.uid : 'anonymous',
       createdAt: Date.now(),
     };
-    console.log('nowww');
     const surveyDoc = await createNewSurveyDocument(
       surveyDocument,
       currentUser
     );
+    console.log(surveyDoc);
     setFormValues({
       location: currentUser ? currentUser.location : '12232068545844200',
       grade: currentUser ? currentUser.grade : '1',
@@ -106,7 +106,12 @@ const TrackerForm = () => {
 
   return (
     <Form>
-      {step === 3 ? <SurveyListCard survey={survey} /> : null}
+      {step === 3 ? (
+        <SurveyList
+          query={{ field: 'surveyId', value: survey.surveyId }}
+          editable
+        />
+      ) : null}
       {step !== 3 ? (
         <SurveyDetailSection
           handleChange={handleInputChange}
@@ -148,3 +153,5 @@ const TrackerForm = () => {
 };
 
 export default TrackerForm;
+
+// {step === 3 ? <SurveyListCard survey={survey} editable /> : null}

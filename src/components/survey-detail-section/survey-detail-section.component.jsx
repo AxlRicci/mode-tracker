@@ -37,7 +37,7 @@ const SurveyDetailSection = ({ handleChange, formValues }) => {
       setLocations(locationArray);
     };
     fetchLocations();
-  });
+  }, []);
 
   return (
     <Form.Row>
