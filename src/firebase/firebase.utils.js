@@ -368,6 +368,13 @@ export const getAllSurveyData = async (locationId, direction, format) => {
 };
 
 ///
+/// ** Gets a transportation score for a location **
+/// Notes: Takes a locationId and then returns the % of respondants that use active transportation.
+/// --> Returns: a decimal value.
+/// ////////////////////////////////////////
+export const getAtScore = async (locationId) => {};
+
+///
 /// ** Create Location document in Firestore **
 /// Notes: Takes a mapbox location search result object, checks for its existance in the database,
 /// then adds a new document to the locations collection.
