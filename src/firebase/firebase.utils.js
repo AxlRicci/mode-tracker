@@ -368,11 +368,72 @@ export const getAllSurveyData = async (locationId, direction, format) => {
 };
 
 ///
-/// ** Gets a transportation score for a location **
+/// ** Gets a transportation totals for a location **
 /// Notes: Takes a locationId and then returns the % of respondants that use active transportation.
 /// --> Returns: a decimal value.
 /// ////////////////////////////////////////
-export const getAtScore = async (locationId) => {};
+export const getTransportTotals = async (locationId) => {
+  const toData = await getAllSurveyData(locationId, 'to', 'graph');
+  const fromData = await getAllSurveyData(locationId, 'from', 'graph');
+  if (toData[0].value && fromData[0].value) {
+    const bothData = toData.map((mode, index) => ({
+      name: mode.name,
+      value: (mode.value += fromData[index].value),
+    }));
+    const totalSurveyed = bothData.reduce((acc, current) => {
+      let reassignedAcc = acc;
+      reassignedAcc += current.value;
+      return reassignedAcc;
+    }, 0);
+    const totalAt = bothData.reduce((acc, current) => {
+      let reassignedAcc = acc;
+      switch (current.name) {
+        case 'bike':
+          reassignedAcc += current.value;
+          break;
+        case 'walk':
+          reassignedAcc += current.value;
+          break;
+        case 'roll':
+          reassignedAcc += current.value;
+          break;
+        default:
+          return reassignedAcc;
+      }
+      return reassignedAcc;
+    }, 0);
+    return {
+      data: [...bothData],
+      activeScore: Math.round((totalAt / totalSurveyed) * 100),
+      totalSurveyed,
+      totalActive: totalAt,
+      totalInactive: totalSurveyed - totalAt,
+    };
+  }
+  return 0;
+};
+
+///
+/// ** location List with atScore **
+/// --> Returns an array of llocation objects with an additional object with combined transportation data.
+/// ////////////////////////////////////////
+
+export const locationListWithAdditionalData = async () => {
+  const locations = await fetchAllLocationData();
+  const promises = [];
+  locations.forEach((location) => {
+    const additionalDataPromise = getTransportTotals(location.locationId);
+    promises.push(additionalDataPromise);
+  });
+  const newarray = await Promise.all(promises).then((results) => {
+    const newLocationArr = results.map((result, idx) => ({
+      ...locations[idx],
+      totals: { ...result },
+    }));
+    return newLocationArr;
+  });
+  return newarray;
+};
 
 ///
 /// ** Create Location document in Firestore **
