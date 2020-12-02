@@ -7,6 +7,7 @@ import Col from 'react-bootstrap/Col';
 import './form-input.styles.scss';
 
 const FormInput = ({
+  error,
   description,
   handleChange,
   label,
@@ -45,10 +46,12 @@ const FormInput = ({
     {description ? (
       <Form.Text className="text-muted">{description}</Form.Text>
     ) : null}
+    {error ? <Form.Text className="text-danger">{error}</Form.Text> : null}
   </Form.Group>
 );
 
 FormInput.propTypes = {
+  error: propTypes.string,
   description: propTypes.string,
   handleChange: propTypes.func,
   label: propTypes.string,

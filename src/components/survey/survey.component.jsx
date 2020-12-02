@@ -6,7 +6,13 @@ import Row from 'react-bootstrap/Row';
 
 import FormInput from '../form-input/form-input.component';
 
-const Survey = ({ handleInputChange, formValues, text, value }) => (
+const Survey = ({
+  handleInputChange,
+  validationErrors,
+  formValues,
+  text,
+  value,
+}) => (
   <ListGroup>
     <ListGroup.Item variant="success">
       <Row className="d-flex">
@@ -23,6 +29,7 @@ const Survey = ({ handleInputChange, formValues, text, value }) => (
             name={`${value}Bike`}
             value={formValues.data[`${value}Bike`]}
             min={0}
+            error={validationErrors[`${value}BikeError`]}
           />
         </Col>
       </Row>
@@ -42,6 +49,7 @@ const Survey = ({ handleInputChange, formValues, text, value }) => (
             name={`${value}Walk`}
             value={formValues.data[`${value}Walk`]}
             min={0}
+            error={validationErrors[`${value}WalkError`]}
           />
         </Col>
       </Row>
@@ -61,6 +69,7 @@ const Survey = ({ handleInputChange, formValues, text, value }) => (
             name={`${value}Roll`}
             value={formValues.data[`${value}Roll`]}
             min={0}
+            error={validationErrors[`${value}RollError`]}
           />
         </Col>
       </Row>
@@ -82,6 +91,7 @@ const Survey = ({ handleInputChange, formValues, text, value }) => (
             name={`${value}PublicTrans`}
             value={formValues.data[[`${value}PublicTrans`]]}
             min={0}
+            error={validationErrors[`${value}PublicTransError`]}
           />
         </Col>
       </Row>
@@ -101,6 +111,7 @@ const Survey = ({ handleInputChange, formValues, text, value }) => (
             name={`${value}Schoolbus`}
             value={formValues.data[`${value}Schoolbus`]}
             min={0}
+            error={validationErrors[`${value}SchoolbusError`]}
           />
         </Col>
       </Row>
@@ -120,6 +131,7 @@ const Survey = ({ handleInputChange, formValues, text, value }) => (
             name={`${value}Car`}
             value={formValues.data[`${value}Car`]}
             min={0}
+            error={validationErrors[`${value}CarError`]}
           />
         </Col>
       </Row>
@@ -128,6 +140,7 @@ const Survey = ({ handleInputChange, formValues, text, value }) => (
 );
 
 Survey.propTypes = {
+  validationErrors: propTypes.object,
   formValues: propTypes.object,
   text: propTypes.string,
   value: propTypes.string,

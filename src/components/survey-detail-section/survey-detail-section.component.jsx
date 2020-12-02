@@ -3,11 +3,16 @@ import propTypes from 'prop-types';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Jumbotron from 'react-bootstrap/Jumbotron';
+import { PortraitSharp } from '@material-ui/icons';
 import { fetchAllLocationData } from '../../firebase/firebase.utils';
 
 import FormSelect from '../form-select/form-select.component';
 
-const SurveyDetailSection = ({ handleChange, formValues }) => {
+const SurveyDetailSection = ({
+  handleChange,
+  formValues,
+  validationErrors,
+}) => {
   const [locations, setLocations] = useState(['loading...']);
   const gradeOptions = [
     '1',
@@ -54,6 +59,7 @@ const SurveyDetailSection = ({ handleChange, formValues }) => {
             optionValue="locationId"
             optionLabelMain="locationName"
             optionLabelDesc="locationAddress"
+            error={validationErrors.locationError}
           />
           <FormSelect
             name="grade"
@@ -61,6 +67,7 @@ const SurveyDetailSection = ({ handleChange, formValues }) => {
             handleChange={handleChange}
             value={formValues.grade || '1'}
             options={gradeOptions}
+            error={validationErrors.gradeError}
           />
         </Jumbotron>
       </Col>
@@ -71,6 +78,7 @@ const SurveyDetailSection = ({ handleChange, formValues }) => {
 SurveyDetailSection.propTypes = {
   formValues: propTypes.object,
   handleChange: propTypes.func,
+  validationErrors: propTypes.object,
 };
 
 export default SurveyDetailSection;

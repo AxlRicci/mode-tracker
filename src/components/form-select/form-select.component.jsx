@@ -5,6 +5,7 @@ import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
 
 const FormSelect = ({
+  error,
   description,
   handleChange,
   label,
@@ -71,10 +72,14 @@ const FormSelect = ({
     {description ? (
       <Form.Text className="text-muted">{description}</Form.Text>
     ) : null}
+    {error ? (
+      <Form.Text className="text-danger bg-light">{error}</Form.Text>
+    ) : null}
   </Form.Group>
 );
 
 FormSelect.propTypes = {
+  error: propTypes.string,
   description: propTypes.string,
   handleChange: propTypes.func,
   label: propTypes.string,
