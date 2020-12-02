@@ -1,16 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { withRouter } from 'react-router-dom';
 import propTypes from 'prop-types';
 
 import Container from 'react-bootstrap/Container';
 import Table from 'react-bootstrap/Table';
 import Spinner from 'react-bootstrap/Spinner';
+import Overlay from 'react-bootstrap/Overlay';
+import Tooltip from 'react-bootstrap/Tooltip';
+
+import { ReactComponent as Icon } from '../../assets/info.svg';
 
 import { locationListWithAdditionalData } from '../../firebase/firebase.utils';
 
 const LocationList = ({ history }) => {
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(null);
+  const [tooltipShow, setTooltipShow] = useState(false);
+  const target = useRef(null);
 
   useEffect(() => {
     const getAndSetLocationList = async () => {
@@ -30,7 +36,50 @@ const LocationList = ({ history }) => {
             <tr>
               <th>Name</th>
               <th className="d-none d-md-table-cell">Address</th>
-              <th>Score</th>
+              <th>
+                Active Score{' '}
+                <Icon
+                  ref={target}
+                  onClick={() => setTooltipShow(!tooltipShow)}
+                  style={{
+                    width: '15px',
+                    height: '15px',
+                    lineHeight: '0',
+                    cursor: 'pointer',
+                    fill: '#555',
+                  }}
+                />
+                <Overlay
+                  target={target.current}
+                  placement="top"
+                  show={tooltipShow}
+                >
+                  {(props) => {
+                    const {
+                      arrowProps,
+                      placement,
+                      popper,
+                      ref,
+                      show,
+                      style,
+                    } = props;
+                    return (
+                      <Tooltip
+                        id="active-score-tooltip"
+                        arrowProps={arrowProps}
+                        placement={placement}
+                        popper={popper}
+                        ref={ref}
+                        show={show}
+                        style={style}
+                      >
+                        The active score is the percentage of students who bike,
+                        walk or roll to school.
+                      </Tooltip>
+                    );
+                  }}
+                </Overlay>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -68,6 +117,12 @@ const LocationList = ({ history }) => {
 
 LocationList.propTypes = {
   history: propTypes.object,
+  arrowProps: propTypes.object,
+  placement: propTypes.string,
+  popper: propTypes.object,
+  ref: propTypes.object,
+  show: propTypes.bool,
+  style: propTypes.object,
 };
 
 export default withRouter(LocationList);
