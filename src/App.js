@@ -15,6 +15,7 @@ import LocationPage from './pages/location-page/location-page.component';
 import AddLocationPage from './pages/add-location-page/add-location-page.component';
 import LocationListPage from './pages/location-list-page/location-list-page.component';
 import SurveyPage from './pages/survey-page/survey-page.component';
+import NotFoundPage from './pages/not-found-page/not-found-page.component';
 
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -49,6 +50,7 @@ const App = () => {
               <Route path="/location/:id" component={LocationPage} />
               <Route path="/add-location" component={AddLocationPage} />
               <Route path="/survey" component={SurveyPage} />
+              <Route path="*" component={NotFoundPage} />
             </Switch>
             <Footer />
           </UserContext.Provider>
