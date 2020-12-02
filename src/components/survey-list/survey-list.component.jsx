@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import propTypes from 'prop-types';
 
+import Alert from 'react-bootstrap/Alert';
 import CardDeck from 'react-bootstrap/CardDeck';
 import SurveyListCard from '../survey-list-card/survey-list-card.component';
 
@@ -46,9 +47,7 @@ const SurveyList = ({ query, editable }) => {
           />
         ))
       ) : (
-        <h6 className="muted">
-          No surveys have been completed at this location.
-        </h6>
+        <Alert variant="warning">No surveys available.</Alert>
       )}
     </CardDeck>
   );

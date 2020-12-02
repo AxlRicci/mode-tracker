@@ -15,8 +15,13 @@ const SurveyEditModal = ({ show, handleClose, data }) => {
     surveyId: '',
   });
 
-  const handleChange = (event) =>
-    setModalData({ ...modalData, value: event.target.value });
+  const handleChange = (event) => {
+    const { value, type } = event.target;
+    setModalData({
+      ...modalData,
+      value: type === 'number' ? parseInt(value) : value,
+    });
+  };
 
   const handleSubmit = async () => {
     await updateSurveyData(modalData.surveyId, modalData);
