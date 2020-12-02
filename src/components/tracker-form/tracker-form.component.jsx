@@ -107,23 +107,35 @@ const TrackerForm = () => {
     setValidationErrors(validationErrorList);
 
     if (validationErrorList) {
+      // Determine where in the survey the error is.
       const toError = !Object.keys(validationErrorList).some((key) =>
         key.indexOf('tl')
       );
       const fromError = !Object.keys(validationErrorList).some((key) =>
         key.indexOf('fl')
       );
+
+      const locationError = !Object.keys(validationErrorList).some((key) =>
+        key.indexOf('location')
+      );
+
+      const gradeError = !Object.keys(validationErrorList).some((key) =>
+        key.indexOf('grade')
+      );
+
+      // Move the user to the section of the survey that has the error.
       if (toError) {
         setStep(1); // sends back to first survey page to fix to location field error
       } else if (fromError) {
         setStep(2); // keeps user on second page to fix from location field error
-      } else {
+      } else if (locationError || gradeError) {
         window.scrollTo({ top: 0, behavior: 'smooth' }); // scrolls to top to fix location or grade error.
       }
     }
 
     // check if form is valid and submit.
     if (!validationErrorList) {
+      console.log('...clearning');
       const surveyDoc = await createNewSurveyDocument(
         surveyDocument,
         currentUser
