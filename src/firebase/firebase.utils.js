@@ -444,7 +444,7 @@ export const locationListWithAdditionalData = async () => {
 export const createNewLocationDocument = async (result, name, type) => {
   const locationId = result.id.split('.')[1];
   const locationRef = firestore.doc(`locations/${locationId}`);
-  locationRef
+  await locationRef
     .get()
     .then((locationDoc) => {
       if (!locationDoc.exists) {
@@ -459,23 +459,26 @@ export const createNewLocationDocument = async (result, name, type) => {
         locationRef
           .set(newLocation)
           .then(() => console.log('New Location Document successfully created'))
-          .catch((error) =>
+          .catch((error) => {
             console.error(
               'An error occured when creating a new location document: ',
               error
-            )
-          );
+            );
+          });
         return newLocation;
       }
+      throw new Error({
+        name: 'location already exists',
+        message: 'The location already exists in the Modal Database',
+      });
     })
     .catch((error) => {
-      console.error(
-        'An error occured when fetching the location document: ',
-        error
-      );
+      console.error('An error occured while adding the location', error);
+      throw new Error({
+        name: 'location exists',
+        message: 'The location already exists in the Modal Database',
+      });
     });
-
-  throw new Error('location exists');
 };
 
 ///

@@ -5,22 +5,38 @@ import Container from 'react-bootstrap/Container';
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+
 import { createNewLocationDocument } from '../../firebase/firebase.utils';
+import { locationSearchFormValidation } from './location-search-validation.component';
+
 import FormInput from '../form-input/form-input.component';
 import LocationSearchResultsList from '../location-search-results-list/location-search-results-list.component';
 
+const initialSearchValues = {
+  locationName: '',
+  locationType: 'school',
+  streetNumber: '',
+  streetName: '',
+  city: '',
+  province: '',
+  postalCode: '',
+  country: '',
+};
+
+const initialSearchErrorValues = {
+  locationNameError: '',
+  locationTypeError: 'school',
+  streetNumberError: '',
+  streetNameError: '',
+  cityError: '',
+  provinceError: '',
+  postalCodeError: '',
+  countryError: '',
+};
+
 const LocationSearch = () => {
-  const [location, setLocation] = useState({
-    locationName: '',
-    locationType: 'school',
-    streetNumber: '',
-    streetName: '',
-    city: '',
-    province: '',
-    postalCode: '',
-    country: '',
-  });
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(initialSearchValues);
+  const [searchErrors, setSearchErrors] = useState(initialSearchErrorValues);
   const [results, setResults] = useState(null);
   const [alert, setAlert] = useState(null);
 
@@ -29,50 +45,54 @@ const LocationSearch = () => {
       `https://api.mapbox.com/geocoding/v5/mapbox.places/${searchTerm}.json?access_token=${API_KEY}&cachebuster=1604269894568&autocomplete=false`
     )
       .then((res) => res.json())
+      .catch((error) =>
+        console.error('error fetching location results from mapbox', error)
+      )
       .then((data) => {
         setResults(data.features);
-      });
+      })
+      .catch((error) => console.error('Error parsing results to json', error));
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const {
-      streetNumber,
-      streetName,
-      city,
-      province,
-      postalCode,
-      country,
-    } = location;
-    const searchTerm = `${streetNumber} ${streetName} ${city} ${province} ${postalCode} ${country}`;
-    fetchResults(searchTerm, process.env.REACT_APP_MAPBOX_KEY);
+    const validationErrorList = locationSearchFormValidation(search);
+    console.log(validationErrorList);
+    setSearchErrors(validationErrorList);
+    if (!validationErrorList) {
+      const {
+        streetNumber,
+        streetName,
+        city,
+        province,
+        postalCode,
+        country,
+      } = search;
+      const searchTerm = `${streetNumber} ${streetName} ${city} ${province} ${postalCode} ${country}`;
+      fetchResults(searchTerm, process.env.REACT_APP_MAPBOX_KEY);
+    }
   };
 
   const selectGeocodedLocation = async (result) => {
-    const { locationName, locationType } = location;
-    try {
-      await createNewLocationDocument(result, locationName, locationType);
-      setAlert({ success: true, msg: 'Location successfully added' });
-      setResults(null);
-      setLocation({
-        locationName: '',
-        locationType: 'school',
-        streetNumber: '',
-        streetName: '',
-        city: '',
-        province: '',
-        postalCode: '',
-        country: '',
-      });
-    } catch (err) {
-      setAlert({ success: false, msg: 'Location Already Exists' });
+    const { locationName, locationType } = search;
+    const validationErrorList = locationSearchFormValidation(search);
+    setSearchErrors(validationErrorList);
+    if (!validationErrorList) {
+      try {
+        await createNewLocationDocument(result, locationName, locationType);
+        setAlert({ success: true, msg: 'Location successfully added' });
+        setResults(null);
+        setSearch(initialSearchValues);
+      } catch (err) {
+        setAlert({ success: false, msg: 'Location Already Exists' });
+      }
     }
   };
 
   const handleFormInputChange = (event) => {
     const { id, value } = event.target;
-    setLocation({
-      ...location,
+    setSearch({
+      ...search,
       [id]: value,
     });
   };
@@ -94,7 +114,8 @@ const LocationSearch = () => {
             label="School Name"
             placeholder="Enter name of school"
             name="locationName"
-            value={location.locationName}
+            value={search.locationName}
+            error={searchErrors.locationNameError}
           />
         </Form.Row>
         <Form.Row className="pl-1">
@@ -104,14 +125,16 @@ const LocationSearch = () => {
             label="Street Number"
             placeholder="Enter street number"
             name="streetNumber"
-            value={location.streetNumber}
+            value={search.streetNumber}
+            error={searchErrors.streetNumberError}
           />
           <FormInput
             handleChange={handleFormInputChange}
             label="Street Name"
             placeholder="Enter the street name"
             name="streetName"
-            value={location.streetName}
+            value={search.streetName}
+            error={searchErrors.streetNameError}
           />
         </Form.Row>
         <Form.Row className="pl-1">
@@ -122,7 +145,8 @@ const LocationSearch = () => {
             label="City"
             placeholder="Enter the city"
             name="city"
-            value={location.city}
+            value={search.city}
+            error={searchErrors.cityError}
           />
           <FormInput
             md={{ span: 6 }}
@@ -131,7 +155,8 @@ const LocationSearch = () => {
             label="Province / State"
             placeholder="Enter the province/state"
             name="province"
-            value={location.province}
+            value={search.province}
+            error={searchErrors.provinceError}
           />
           <FormInput
             md={{ span: 6 }}
@@ -140,7 +165,8 @@ const LocationSearch = () => {
             label="Postal Code / ZIP"
             placeholder="Enter the postal code/zip code"
             name="postalCode"
-            value={location.postalCode}
+            value={search.postalCode}
+            error={searchErrors.postalCodeError}
           />
           <FormInput
             md={{ span: 6 }}
@@ -149,7 +175,8 @@ const LocationSearch = () => {
             label="Country"
             placeholder="Enter the country name"
             name="country"
-            value={location.country}
+            value={search.country}
+            error={searchErrors.countryError}
           />
         </Form.Row>
         <Button variant="info" onClick={handleSubmit}>
