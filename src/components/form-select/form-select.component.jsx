@@ -43,31 +43,16 @@ const FormSelect = ({
       type={type}
       placeholder={placeholder || null}
     >
-      {options.map((option, idx) => {
-        if (value === option || value === optionValue) {
-          return (
-            <option
-              key={option[optionKey] || idx}
-              value={option[optionValue] || option}
-              selected
-            >
-              {optionLabelMain || optionLabelDesc
-                ? `${option[optionLabelMain]} - ${option[optionLabelDesc]}`
-                : option}
-            </option>
-          );
-        }
-        return (
-          <option
-            key={option[optionKey] || idx}
-            value={option[optionValue] || option}
-          >
-            {optionLabelMain || optionLabelDesc
-              ? `${option[optionLabelMain]} - ${option[optionLabelDesc]}`
-              : option}
-          </option>
-        );
-      })}
+      {options.map((option, idx) => (
+        <option
+          key={option[optionKey] || idx}
+          value={option[optionValue] || option}
+        >
+          {optionLabelMain || optionLabelDesc
+            ? `${option[optionLabelMain]} - ${option[optionLabelDesc]}`
+            : option}
+        </option>
+      ))}
     </Form.Control>
     {description ? (
       <Form.Text className="text-muted">{description}</Form.Text>
