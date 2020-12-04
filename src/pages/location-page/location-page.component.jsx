@@ -51,7 +51,12 @@ const LocationPage = ({
             >
               <Button
                 variant="success"
-                onClick={() => history.push('/survey')}
+                onClick={() =>
+                  history.push({
+                    pathname: '/survey',
+                    state: { incomingLocation: location.locationId },
+                  })
+                }
                 size="lg"
               >{`Do a survey at ${location.locationName}`}</Button>
             </Col>

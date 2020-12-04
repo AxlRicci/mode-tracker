@@ -1,4 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
+import propTypes from 'prop-types';
+import { withRouter } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
 
@@ -52,7 +54,7 @@ const initialErrorValues = {
   },
 };
 
-const TrackerForm = () => {
+const TrackerForm = ({ location }) => {
   const currentUser = useContext(UserContext);
   const [step, setStep] = useState(1);
   const [survey, setSurvey] = useState();
@@ -65,6 +67,14 @@ const TrackerForm = () => {
       location: currentUser ? currentUser.location : '12232068545844200',
       grade: currentUser ? currentUser.grade : '1',
     }));
+
+    // Check location state to see if user is being routed with "Do survey at.." button on a location page.
+    if (location.state) {
+      setFormValues((fvals) => ({
+        ...fvals,
+        location: location.state.incomingLocation,
+      }));
+    }
   }, [currentUser]);
 
   const handleInputChange = (event) => {
@@ -189,7 +199,7 @@ const TrackerForm = () => {
             handleNavClick={handleNavClick}
             handleSubmit={handleSubmit}
             step={step}
-            locationId={formValues.location}
+            locationId={survey ? survey.location : formValues.location}
           />
         </Col>
       </Form.Row>
@@ -197,6 +207,8 @@ const TrackerForm = () => {
   );
 };
 
-export default TrackerForm;
+TrackerForm.propTypes = {
+  location: propTypes.object,
+};
 
-// {step === 3 ? <SurveyListCard survey={survey} editable /> : null}
+export default withRouter(TrackerForm);
