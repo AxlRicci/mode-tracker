@@ -6,6 +6,7 @@ import Jumbotron from 'react-bootstrap/Jumbotron';
 import { PortraitSharp } from '@material-ui/icons';
 import { fetchAllLocationData } from '../../firebase/firebase.utils';
 
+import MySpinner from '../my-spinner/my-spinner.component';
 import FormSelect from '../form-select/form-select.component';
 
 const SurveyDetailSection = ({
@@ -13,6 +14,7 @@ const SurveyDetailSection = ({
   formValues,
   validationErrors,
 }) => {
+  const [isLoading, setLoading] = useState(true);
   const [locations, setLocations] = useState(['loading...']);
   const gradeOptions = [
     '1',
@@ -40,9 +42,21 @@ const SurveyDetailSection = ({
     const fetchLocations = async () => {
       const locationArray = await fetchAllLocationData();
       setLocations(locationArray);
+      setLoading(false);
     };
     fetchLocations();
   }, []);
+
+  if (isLoading)
+    return (
+      <Form.Row>
+        <Col>
+          <Jumbotron className="bg-info text-white mb-2">
+            <MySpinner />
+          </Jumbotron>
+        </Col>
+      </Form.Row>
+    );
 
   return (
     <Form.Row>

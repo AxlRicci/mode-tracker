@@ -7,6 +7,8 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Spinner from 'react-bootstrap/Spinner';
 
+import MySpinner from '../my-spinner/my-spinner.component';
+
 import SurveyGraph from '../survey-graph/survey-graph.component';
 
 import { ReactComponent as Alert } from '../../assets/alert.svg';
@@ -27,11 +29,10 @@ const LocationOverview = ({
     totalSurveyed: 0,
     data: [],
   });
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
     const getData = async () => {
-      setLoading(true);
       if (id) {
         const locationDoc = await fetchLocationDocument(id);
         setLocationData(locationDoc);
@@ -47,39 +48,35 @@ const LocationOverview = ({
     getData();
   }, [id]);
 
-  if (!loading) {
-    const { totalSurveyed, activeScore, data } = locationMetrics;
+  if (isLoading)
     return (
-      <Jumbotron className="bg-light">
-        {locationMetrics.data ? (
-          <Row>
-            <Col>
-              <h2>Overview</h2>
-              <p>{`At ${locationData.locationName}, ${activeScore}% of students use sustainable modes of transportation (biking, walking, rolling) to get to and from school. 
-            In total ${totalSurveyed} students have been surveyed to gather this mode split.`}</p>
-            </Col>
-            <Col>
-              <SurveyGraph survey={data} percentage />
-            </Col>
-          </Row>
-        ) : (
-          <Row>
-            <Col className="d-flex">
-              <Alert className="mr-2" />{' '}
-              <h5>No transportation data available.</h5>
-            </Col>
-          </Row>
-        )}
+      <Jumbotron>
+        <MySpinner />
       </Jumbotron>
     );
-  }
+
+  const { totalSurveyed, activeScore, data } = locationMetrics;
   return (
-    <Jumbotron>
-      <Row className="d-flex justify-content-center">
-        <Spinner animation="border" role="status">
-          <span className="sr-only">Loading...</span>
-        </Spinner>
-      </Row>
+    <Jumbotron className="bg-light">
+      {locationMetrics.data ? (
+        <Row>
+          <Col>
+            <h2>Overview</h2>
+            <p>{`At ${locationData.locationName}, ${activeScore}% of students use sustainable modes of transportation (biking, walking, rolling) to get to and from school. 
+            In total ${totalSurveyed} students have been surveyed to gather this mode split.`}</p>
+          </Col>
+          <Col>
+            <SurveyGraph survey={data} percentage />
+          </Col>
+        </Row>
+      ) : (
+        <Row>
+          <Col className="d-flex">
+            <Alert className="mr-2" />{' '}
+            <h5>No transportation data available.</h5>
+          </Col>
+        </Row>
+      )}
     </Jumbotron>
   );
 };

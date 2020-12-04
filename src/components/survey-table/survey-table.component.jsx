@@ -7,6 +7,7 @@ import Table from 'react-bootstrap/Table';
 import Spinner from 'react-bootstrap/Spinner';
 import { deleteSurvey } from '../../firebase/firebase.utils';
 
+import MySpinner from '../my-spinner/my-spinner.component';
 import SurveyEditModal from '../survey-edit-modal/survey-edit-modal.component';
 
 import { ReactComponent as Bike } from '../../assets/bike.svg';
@@ -47,100 +48,96 @@ const SurveyTable = ({ additionalClasses, survey, editable }) => {
     await deleteSurvey(survey.surveyId);
   };
 
-  if (survey) {
-    return (
-      <Figure style={{ width: '100%' }}>
-        {showModal ? (
-          <SurveyEditModal
-            show={showModal}
-            handleClose={handleClose}
-            data={modalInfo}
-          />
-        ) : null}
-        <Table className={`${additionalClasses}`} responsive>
-          <thead>
-            <tr>
-              <th>Direction</th>
-              <th>
-                <Bike width="30" height="30" />
-              </th>
-              <th>
-                <Walk width="30" height="30" />
-              </th>
-              <th>
-                <Roll width="30" height="30" />
-              </th>
-              <th>
-                <Schoolbus width="32" height="32" />
-              </th>
-              <th>
-                <PublicTrans width="30" height="30" />
-              </th>
-              <th>
-                <Car width="30" height="30" />
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>To School</td>
-              {survey.data.to.map((mode) => (
-                <td key={mode.name}>
-                  {editable ? (
-                    <button
-                      className="unstyled-button"
-                      type="button"
-                      onClick={handleClick}
-                      name={mode.name}
-                      value={mode.value}
-                      direction="to"
-                    >
-                      {mode.value}
-                    </button>
-                  ) : (
-                    mode.value
-                  )}
-                </td>
-              ))}
-            </tr>
-            <tr>
-              <td>From School</td>
-              {survey.data.from.map((mode) => (
-                <td key={mode.name}>
-                  {editable ? (
-                    <button
-                      className="unstyled-button"
-                      type="button"
-                      onClick={handleClick}
-                      name={mode.name}
-                      value={mode.value}
-                      direction="from"
-                    >
-                      {mode.value}
-                    </button>
-                  ) : (
-                    mode.value
-                  )}
-                </td>
-              ))}
-            </tr>
-          </tbody>
-        </Table>
-        {editable ? (
-          <Figure.Caption className="text-center d-flex flex-column align-items-center">
-            <p className="mb-1">Click or tap a table cell to edit or:</p>
-            <Button onClick={handleDelete} size="sm" variant="danger">
-              Delete Survey
-            </Button>
-          </Figure.Caption>
-        ) : null}
-      </Figure>
-    );
-  }
+  // If no survey is loaded in yet show spinner.
+  if (!survey) return <MySpinner />;
+
   return (
-    <Spinner animation="boarder" role="status">
-      <span className="sr-only">Loading...</span>
-    </Spinner>
+    <Figure style={{ width: '100%' }}>
+      {showModal ? (
+        <SurveyEditModal
+          show={showModal}
+          handleClose={handleClose}
+          data={modalInfo}
+        />
+      ) : null}
+      <Table className={`${additionalClasses}`} responsive>
+        <thead>
+          <tr>
+            <th>Direction</th>
+            <th>
+              <Bike width="30" height="30" />
+            </th>
+            <th>
+              <Walk width="30" height="30" />
+            </th>
+            <th>
+              <Roll width="30" height="30" />
+            </th>
+            <th>
+              <Schoolbus width="32" height="32" />
+            </th>
+            <th>
+              <PublicTrans width="30" height="30" />
+            </th>
+            <th>
+              <Car width="30" height="30" />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>To School</td>
+            {survey.data.to.map((mode) => (
+              <td key={mode.name}>
+                {editable ? (
+                  <button
+                    className="unstyled-button"
+                    type="button"
+                    onClick={handleClick}
+                    name={mode.name}
+                    value={mode.value}
+                    direction="to"
+                  >
+                    {mode.value}
+                  </button>
+                ) : (
+                  mode.value
+                )}
+              </td>
+            ))}
+          </tr>
+          <tr>
+            <td>From School</td>
+            {survey.data.from.map((mode) => (
+              <td key={mode.name}>
+                {editable ? (
+                  <button
+                    className="unstyled-button"
+                    type="button"
+                    onClick={handleClick}
+                    name={mode.name}
+                    value={mode.value}
+                    direction="from"
+                  >
+                    {mode.value}
+                  </button>
+                ) : (
+                  mode.value
+                )}
+              </td>
+            ))}
+          </tr>
+        </tbody>
+      </Table>
+      {editable ? (
+        <Figure.Caption className="text-center d-flex flex-column align-items-center">
+          <p className="mb-1">Click or tap a table cell to edit or:</p>
+          <Button onClick={handleDelete} size="sm" variant="danger">
+            Delete Survey
+          </Button>
+        </Figure.Caption>
+      ) : null}
+    </Figure>
   );
 };
 
