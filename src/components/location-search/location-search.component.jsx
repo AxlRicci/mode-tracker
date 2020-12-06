@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 
 import Container from 'react-bootstrap/Container';
@@ -8,6 +8,8 @@ import Form from 'react-bootstrap/Form';
 
 import { createNewLocationDocument } from '../../firebase/firebase.utils';
 import { locationSearchFormValidation } from './location-search-validation.component';
+
+import { AlertContext } from '../../contexts/alert.context';
 
 import FormInput from '../form-input/form-input.component';
 import LocationSearchResultsList from '../location-search-results-list/location-search-results-list.component';
@@ -35,29 +37,35 @@ const initialSearchErrorValues = {
 };
 
 const LocationSearch = () => {
+  const [alerts, setAlerts] = useContext(AlertContext);
+
   const [search, setSearch] = useState(initialSearchValues);
   const [searchErrors, setSearchErrors] = useState(initialSearchErrorValues);
   const [results, setResults] = useState(null);
-  const [alert, setAlert] = useState(null);
 
-  const fetchResults = (searchTerm, API_KEY) => {
+  const fetchResults = async (searchTerm, API_KEY) => {
     fetch(
       `https://api.mapbox.com/geocoding/v5/mapbox.places/${searchTerm}.json?access_token=${API_KEY}&cachebuster=1604269894568&autocomplete=false`
     )
       .then((res) => res.json())
-      .catch((error) =>
-        console.error('error fetching location results from mapbox', error)
-      )
+      .catch((err) => {
+        throw new Error(
+          `An error occured while fetching location results from mapbox. ${err}`
+        );
+      })
       .then((data) => {
         setResults(data.features);
       })
-      .catch((error) => console.error('Error parsing results to json', error));
+      .catch((err) => {
+        throw new Error(
+          `An error occured while parsing the result to .json. ${err}`
+        );
+      });
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const validationErrorList = locationSearchFormValidation(search);
-    console.log(validationErrorList);
     setSearchErrors(validationErrorList);
     if (!validationErrorList) {
       const {
@@ -69,7 +77,11 @@ const LocationSearch = () => {
         country,
       } = search;
       const searchTerm = `${streetNumber} ${streetName} ${city} ${province} ${postalCode} ${country}`;
-      fetchResults(searchTerm, process.env.REACT_APP_MAPBOX_KEY);
+      fetchResults(searchTerm, process.env.REACT_APP_MAPBOX_KEY)
+        .then()
+        .catch((err) => {
+          setAlerts([...alerts, { type: 'fail', message: err.message }]);
+        });
     }
   };
 
@@ -78,14 +90,21 @@ const LocationSearch = () => {
     const validationErrorList = locationSearchFormValidation(search);
     setSearchErrors(validationErrorList);
     if (!validationErrorList) {
-      try {
-        await createNewLocationDocument(result, locationName, locationType);
-        setAlert({ success: true, msg: 'Location successfully added' });
-        setResults(null);
-        setSearch(initialSearchValues);
-      } catch (err) {
-        setAlert({ success: false, msg: 'Location Already Exists' });
-      }
+      createNewLocationDocument(result, locationName, locationType)
+        .then(() => {
+          setAlerts([
+            ...alerts,
+            {
+              type: 'success',
+              message: 'Location successfully added',
+            },
+          ]);
+          setResults(null);
+          setSearch(initialSearchValues);
+        })
+        .catch((err) => {
+          setAlerts([...alerts, { type: 'fail', message: err.message }]);
+        });
     }
   };
 
@@ -99,14 +118,6 @@ const LocationSearch = () => {
 
   return (
     <Container>
-      {alert ? (
-        <Alert variant={alert.success ? 'success' : 'danger'}>
-          {`${alert.msg}. `}
-          <Alert.Link as={Link} to="/survey">
-            Start a survey now.
-          </Alert.Link>
-        </Alert>
-      ) : null}
       <Form>
         <Form.Row className="pl-1">
           <FormInput

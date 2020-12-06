@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import propTypes from 'prop-types';
 
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
+import { AlertContext } from '../../contexts/alert.context';
 import { updateSurveyData } from '../../firebase/firebase.utils';
 
 import FormInput from '../form-input/form-input.component';
 
 const SurveyEditModal = ({ show, handleClose, data }) => {
+  const [alerts, setAlerts] = useContext(AlertContext);
   const [modalData, setModalData] = useState({
     direction: '',
     name: '',
@@ -24,8 +26,17 @@ const SurveyEditModal = ({ show, handleClose, data }) => {
   };
 
   const handleSubmit = async () => {
-    await updateSurveyData(modalData.surveyId, modalData);
-    handleClose();
+    updateSurveyData(modalData.surveyId, modalData)
+      .then(() => {
+        setAlerts([
+          ...alerts,
+          { type: 'success', message: 'Survey edits successfully submitted!' },
+        ]);
+        handleClose();
+      })
+      .catch((err) => {
+        setAlerts([...alerts, { type: 'fail', message: err.message }]);
+      });
   };
 
   useEffect(() => {

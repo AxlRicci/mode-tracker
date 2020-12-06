@@ -4,12 +4,14 @@ import Container from 'react-bootstrap/Container';
 import ProfileDetails from '../../components/profile-details/profile-details.component';
 import SurveyList from '../../components/survey-list/survey-list.component';
 
+import { AlertContext } from '../../contexts/alert.context';
 import { UserContext } from '../../contexts/user.context';
 
 import { updateUserDocument } from '../../firebase/firebase.utils';
 
 const ProfilePage = () => {
   const user = useContext(UserContext);
+  const [alerts, setAlerts] = useContext(AlertContext);
 
   const [userProfile, setUserProfile] = useState({
     uid: '',
@@ -37,8 +39,14 @@ const ProfilePage = () => {
     });
   };
 
-  const handleSubmit = () => {
-    updateUserDocument(user.uid, userProfile);
+  const handleSubmit = async () => {
+    updateUserDocument(user.uid, userProfile)
+      .then(() =>
+        setAlerts([...alerts, { type: 'success', message: 'updated..' }])
+      )
+      .catch((error) => {
+        setAlerts([...alerts, { type: 'fail', message: error.message }]);
+      });
   };
 
   if (userProfile) {

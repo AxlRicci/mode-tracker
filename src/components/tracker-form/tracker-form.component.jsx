@@ -7,6 +7,7 @@ import Col from 'react-bootstrap/Col';
 import { createNewSurveyDocument } from '../../firebase/firebase.utils';
 import { trackerFormValidation } from './tracker-form-validation.component';
 
+import { AlertContext } from '../../contexts/alert.context';
 import { UserContext } from '../../contexts/user.context';
 
 import Survey from '../survey/survey.component';
@@ -56,6 +57,7 @@ const initialErrorValues = {
 
 const TrackerForm = ({ location }) => {
   const currentUser = useContext(UserContext);
+  const [alerts, setAlerts] = useContext(AlertContext);
   const [step, setStep] = useState(1);
   const [survey, setSurvey] = useState();
   const [formValues, setFormValues] = useState(initialFormValues);
@@ -146,13 +148,22 @@ const TrackerForm = ({ location }) => {
     // check if form is valid and submit.
     if (!validationErrorList) {
       console.log('...clearning');
-      const surveyDoc = await createNewSurveyDocument(
-        surveyDocument,
-        currentUser
-      );
-      setFormValues(initialFormValues);
-      setSurvey(surveyDoc);
-      setStep(3);
+      createNewSurveyDocument(surveyDocument, currentUser)
+        .then((surveyDoc) => {
+          setFormValues(initialFormValues);
+          setSurvey(surveyDoc);
+          setAlerts([
+            ...alerts,
+            {
+              type: 'success',
+              message: 'Successfully submitted survey!',
+            },
+          ]);
+          setStep(3);
+        })
+        .catch((err) => {
+          setAlerts([...alerts, { type: 'fail', message: err.message }]);
+        });
     }
   };
 

@@ -31,25 +31,31 @@ export const createUserDocument = async (authResult) => {
   // Take authResult from firebase.auth signin and query the database for the user's document.
   const { user } = authResult;
   const userRef = firestore.doc(`/users/${user.uid}`);
-  userRef.get().then((userDoc) => {
-    // If the document does not exist, a new document is created using the user data provided by authResult.
-    if (!userDoc.exists) {
-      userRef
-        .set({
-          uid: user.uid,
-          displayName: user.displayName,
-          createdAt: new Date(),
-          surveys: [],
-        })
-        .then(() => console.log('New user document successfully created'))
-        .catch((error) => {
-          console.error(
-            'There was an error when creating a new user document: ',
-            error
-          );
-        });
-    }
-  });
+  userRef
+    .get()
+    .then((userDoc) => {
+      // If the document does not exist, a new document is created using the user data provided by authResult.
+      if (!userDoc.exists) {
+        userRef
+          .set({
+            uid: user.uid,
+            displayName: user.displayName,
+            createdAt: new Date(),
+            surveys: [],
+          })
+          .then()
+          .catch((err) => {
+            throw new Error(
+              `An error occured when creating a new user document: ${err}`
+            );
+          });
+      } else {
+        throw new Error('An error occured. User already exists. Please login');
+      }
+    })
+    .catch((err) => {
+      throw new Error(err);
+    });
   return user; // Returns the user data incase it is needed.
 };
 
@@ -64,13 +70,14 @@ export const fetchUserDocument = async (uid) => {
     .get()
     .then((userDoc) => {
       if (userDoc.exists) {
-        console.log('User document successfully fetched.');
         return userDoc.data();
       }
-      console.log('no such user document!');
+      throw new Error(
+        'An error occured. The User document requested does not exist.'
+      );
     })
-    .catch((error) => {
-      console.error('...error fetching user document: ', error);
+    .catch((err) => {
+      throw new Error(err);
     });
 };
 
@@ -85,13 +92,14 @@ export const fetchLocationDocument = async (locationId) => {
     .get()
     .then((locationDoc) => {
       if (locationDoc.exists) {
-        console.log('Location document successfully fetched.');
         return locationDoc.data();
       }
-      console.log('No such document!');
+      throw new Error(
+        'An error occured while fetching location document. The requested location document does not exist'
+      );
     })
-    .catch((error) => {
-      console.error('Error fetching location document: ', error);
+    .catch((err) => {
+      throw new Error(err);
     });
 };
 
@@ -110,11 +118,10 @@ export const fetchAllLocationData = async () => {
         acc.push(curr.data()); // Get data from each document and add it to the reducer's accumulated array.
         return acc;
       }, []);
-      console.log('All location data successfully fetched');
       return locationsArray; // Returns array of location documents.
     })
-    .catch((error) => {
-      console.error('An error occured when fetching location data: ', error);
+    .catch((err) => {
+      throw new Error(err);
     });
 };
 
@@ -125,7 +132,7 @@ export const fetchAllLocationData = async () => {
 /// ////////////////////////////////////////
 export const updateUserDocument = async (uid, userProfile) => {
   const userRef = firestore.doc(`users/${uid}`);
-  userRef
+  return userRef
     .get()
     .then((userDoc) => {
       if (userDoc.exists) {
@@ -135,20 +142,18 @@ export const updateUserDocument = async (uid, userProfile) => {
             ...userData,
             ...userProfile,
           })
-          .then(() => console.log('User document successfully updated'))
+          .then()
           .catch((error) => {
-            console.error(
-              'An error occured while updaing user document: ',
-              error
+            throw new Error(
+              `Sorry an error occured while updating profile. Error: ${error}`
             );
           });
+      } else {
+        throw new Error('User document does not exist. Please login again.');
       }
     })
     .catch((error) => {
-      console.error(
-        'An error occured when fetching the user document: ',
-        error
-      );
+      throw new Error(error);
     });
 };
 
@@ -203,11 +208,11 @@ export const createNewSurveyDocument = async (survey, user) => {
   const firestoreSurvey = { ...formatted, surveyId: surveyRef.id };
   surveyRef
     .set(firestoreSurvey)
-    .then(() => {
-      console.log('Successfully created new survey document');
-    })
-    .catch((error) => {
-      console.error('Error creating new survey document', error);
+    .then()
+    .catch((err) => {
+      throw new Error(
+        `An error occured while creating a survey document. ${err}`
+      );
     });
   // Check if a user is associated with the incoming survey.
   // If true, add reference in user's surveys array.
@@ -220,13 +225,10 @@ export const createNewSurveyDocument = async (survey, user) => {
           firestore.doc(`surveys/${surveyRef.id}`)
         ),
       })
-      .then(() => {
-        console.log('Successfully created survey reference in user document');
-      })
-      .catch((error) => {
-        console.error(
-          'Error creating survey reference in user document: ',
-          error
+      .then()
+      .catch((err) => {
+        throw new Error(
+          `An error occured while adding survey reference to user document. ${err}`
         );
       });
   }
@@ -238,13 +240,10 @@ export const createNewSurveyDocument = async (survey, user) => {
         firestore.doc(`surveys/${surveyRef.id}`)
       ),
     })
-    .then(() => {
-      console.log('Successfully created survey reference in location document');
-    })
-    .catch((error) => {
-      console.error(
-        'Error creating survey reference in location document: ',
-        error
+    .then()
+    .catch((err) => {
+      throw new Error(
+        `An error occured while adding survey reference to location document. ${err}`
       );
     });
   return firestoreSurvey; // Return the survey object identical to the database object.
@@ -283,12 +282,12 @@ export const updateSurveyData = async (surveyId, newValueObject) => {
         ],
       },
     })
-    .then(() => {
-      console.log('Successfully updated survey data cell');
-    })
-    .catch((error) =>
-      console.error('An error occurred when updating survey data cell: ', error)
-    );
+    .then()
+    .catch((err) => {
+      throw new Error(
+        `An error occurred when updating survey data cell. ${err}`
+      );
+    });
 };
 
 ///
@@ -319,12 +318,9 @@ export const getAllSurveyData = async (locationId, direction, format) => {
   const locationRef = firestore.doc(`locations/${locationId}`);
   const locationData = await locationRef
     .get()
-    .then((locationDoc) => {
-      console.log('Successfully fetched all survey data');
-      return locationDoc.data();
-    })
-    .catch((error) => {
-      console.error('An error occured while fetching survey data: ', error);
+    .then((locationDoc) => locationDoc.data())
+    .catch((err) => {
+      throw new Error(`An error occured while fetching survey data. ${err} `);
     });
 
   // iterates through all survey references for the location and uses reduce to add the results for each mode together.
@@ -342,10 +338,9 @@ export const getAllSurveyData = async (locationId, direction, format) => {
           }
           return acc;
         })
-        .catch((error) => {
-          console.error(
-            'An error occurred when fetching location data: ',
-            error
+        .catch((err) => {
+          throw new Error(
+            `An error occurred when fetching location data. ${err}`
           );
         }),
     {}
@@ -458,26 +453,18 @@ export const createNewLocationDocument = async (result, name, type) => {
         };
         locationRef
           .set(newLocation)
-          .then(() => console.log('New Location Document successfully created'))
-          .catch((error) => {
-            console.error(
-              'An error occured when creating a new location document: ',
-              error
+          .then()
+          .catch((err) => {
+            throw new Error(
+              `An error occured when creating a new location document. ${err}`
             );
           });
         return newLocation;
       }
-      throw new Error({
-        name: 'location already exists',
-        message: 'The location already exists in the Modal Database',
-      });
+      throw new Error('The location already exists in the Modal Database');
     })
-    .catch((error) => {
-      console.error('An error occured while adding the location', error);
-      throw new Error({
-        name: 'location exists',
-        message: 'The location already exists in the Modal Database',
-      });
+    .catch((err) => {
+      throw new Error(err);
     });
 };
 

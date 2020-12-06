@@ -4,7 +4,9 @@ import Container from 'react-bootstrap/Container';
 import firebase, { fetchUserDocument } from './firebase/firebase.utils';
 
 import { UserContext } from './contexts/user.context';
+import { AlertContext } from './contexts/alert.context';
 
+import AlertList from './components/alert-list/alert-list.component';
 import Navigation from './components/navbar/navbar.component';
 import Footer from './components/footer/footer.component';
 
@@ -22,6 +24,13 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 const App = () => {
   const [currentUser, setCurrentUser] = useState(null);
+  const [alerts, setAlerts] = useState([]);
+
+  const handleDismissAlert = (idx) => {
+    const alertList = [...alerts];
+    alertList.splice(idx, 1);
+    setAlerts(alertList);
+  };
 
   useEffect(() => {
     firebase.auth().onAuthStateChanged(async (user) => {
@@ -30,6 +39,10 @@ const App = () => {
         setCurrentUser({
           ...userDoc,
         });
+        setAlerts([
+          ...alerts,
+          { type: 'success', message: 'Sign in successful.' },
+        ]);
       } else {
         setCurrentUser(null);
       }
@@ -38,24 +51,32 @@ const App = () => {
 
   return (
     <div className="App">
-      <Container className="main-container" fluid="xl">
-        <Router>
-          <UserContext.Provider value={currentUser}>
-            <Navigation />
-            <Switch>
-              <Route exact path="/" component={HomePage} />
-              <Route path="/login" component={LoginPage} />
-              <Route path="/profile" component={ProfilePage} />
-              <Route exact path="/locations" component={LocationListPage} />
-              <Route path="/location/:id" component={LocationPage} />
-              <Route path="/add-location" component={AddLocationPage} />
-              <Route path="/survey" component={SurveyPage} />
-              <Route path="*" component={NotFoundPage} />
-            </Switch>
-            <Footer />
-          </UserContext.Provider>
-        </Router>
-      </Container>
+      <AlertContext.Provider value={[alerts, setAlerts]}>
+        <Container className="main-container" fluid="xl">
+          <Router>
+            <UserContext.Provider value={currentUser}>
+              <Navigation />
+              {alerts ? (
+                <AlertList
+                  alerts={alerts}
+                  handleDismissAlert={handleDismissAlert}
+                />
+              ) : null}
+              <Switch>
+                <Route exact path="/" component={HomePage} />
+                <Route path="/login" component={LoginPage} />
+                <Route path="/profile" component={ProfilePage} />
+                <Route exact path="/locations" component={LocationListPage} />
+                <Route path="/location/:id" component={LocationPage} />
+                <Route path="/add-location" component={AddLocationPage} />
+                <Route path="/survey" component={SurveyPage} />
+                <Route path="*" component={NotFoundPage} />
+              </Switch>
+              <Footer />
+            </UserContext.Provider>
+          </Router>
+        </Container>
+      </AlertContext.Provider>
     </div>
   );
 };
