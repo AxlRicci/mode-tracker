@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import propTypes from 'prop-types';
 
 import Button from 'react-bootstrap/Button';
 import Figure from 'react-bootstrap/Figure';
 import Table from 'react-bootstrap/Table';
-import Spinner from 'react-bootstrap/Spinner';
 import { deleteSurvey } from '../../firebase/firebase.utils';
+
+import { AlertContext } from '../../contexts/alert.context';
 
 import MySpinner from '../my-spinner/my-spinner.component';
 import SurveyEditModal from '../survey-edit-modal/survey-edit-modal.component';
@@ -22,6 +23,7 @@ import './survey-table.styles.css';
 // Needs spinner but has if statement for now... fix dis plz
 
 const SurveyTable = ({ additionalClasses, survey, editable }) => {
+  const [alerts, setAlerts] = useContext(AlertContext);
   const [showModal, setShowModal] = useState(false);
   const [modalInfo, setModalInfo] = useState({
     direction: '',
@@ -46,6 +48,10 @@ const SurveyTable = ({ additionalClasses, survey, editable }) => {
 
   const handleDelete = async () => {
     await deleteSurvey(survey.surveyId);
+    setAlerts([
+      ...alerts,
+      { type: 'success', message: 'Survey deleted successfully.' },
+    ]);
   };
 
   // If no survey is loaded in yet show spinner.
