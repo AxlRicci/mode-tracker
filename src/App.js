@@ -39,8 +39,8 @@ const App = () => {
         setCurrentUser({
           ...userDoc,
         });
-        setAlerts([
-          ...alerts,
+        setAlerts((alertList) => [
+          ...alertList,
           { type: 'success', message: 'Sign in successful.' },
         ]);
       } else {
@@ -50,18 +50,18 @@ const App = () => {
   }, []);
 
   return (
-    <div className="App">
+    <div className="App" style={{ position: 'relative' }}>
       <AlertContext.Provider value={[alerts, setAlerts]}>
         <Container className="main-container" fluid="xl">
+          {alerts ? (
+            <AlertList
+              alerts={alerts}
+              handleDismissAlert={handleDismissAlert}
+            />
+          ) : null}
           <Router>
             <UserContext.Provider value={currentUser}>
               <Navigation />
-              {alerts ? (
-                <AlertList
-                  alerts={alerts}
-                  handleDismissAlert={handleDismissAlert}
-                />
-              ) : null}
               <Switch>
                 <Route exact path="/" component={HomePage} />
                 <Route path="/login" component={LoginPage} />

@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import propTypes from 'prop-types';
+import Toast from 'react-bootstrap/Toast';
 
-import AlertSnackbar from '../alert-snackbar/alert-snackbar.component';
+import AlertToast from '../alert-toast/alert-toast.component';
+
+import './alert-list.styles.css';
 
 const AlertList = ({ alerts, handleDismissAlert }) => {
   const [alertList, setAlertList] = useState(alerts);
@@ -10,11 +13,11 @@ const AlertList = ({ alerts, handleDismissAlert }) => {
   }, [alerts]);
 
   return (
-    <div>
+    <div className="toast-list position-fixed">
       {alertList.map((alert, idx) => {
         const { type, message } = alert;
         return (
-          <AlertSnackbar
+          <AlertToast
             key={idx}
             type={type}
             message={message}

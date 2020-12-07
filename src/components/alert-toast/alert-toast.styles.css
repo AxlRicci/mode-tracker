@@ -1,0 +1,5 @@
+.toast {
+  max-width: 100%;
+  width: min-content;
+  min-width: 250px;
+}
