@@ -296,15 +296,62 @@ export const updateSurveyData = async (surveyId, newValueObject) => {
 /// --> returns nothing (..yet, will have error handling).
 /// ////////////////////////////////////////
 
-// ** Needs to remove survey references from location as well as user!!
-
 export const deleteSurvey = async (surveyId) => {
-  firestore
-    .collection('surveys')
-    .doc(surveyId)
+  // Get information about survey that is about to be deleted so other references can also be deleted.
+  const surveyRef = firestore.doc(`surveys/${surveyId}`);
+  const surveyData = await surveyRef
+    .get()
+    .then((res) => res.data())
+    .catch((err) => {
+      console.error(err);
+      throw new Error(
+        `An error occured while fetching survey document. ${err.message}`
+      );
+    });
+
+  // List of collections in the db where references need to be deleted when a survey is deleted.
+  const updateList = ['user', 'location'];
+
+  // Loop through collections and delete appropriate fields within documents.
+  for (let i = 0; i < updateList.length; i += 1) {
+    const ref = firestore.doc(`${updateList[i]}s/${surveyData[updateList[i]]}`);
+    const data = await ref
+      .get()
+      .then((res) => res.data())
+      .catch((err) => {
+        console.error(err);
+        throw new Error(
+          `An error occured while fetching user document. ${err.message}`
+        );
+      });
+
+    // filter the survey to be deleted from the list.
+    const filteredSurveys = data.surveys.filter(
+      (survey) => survey.id !== surveyId
+    );
+
+    // update the survey reference array with new filtered reference list.
+    ref
+      .update({ surveys: filteredSurveys })
+      .then((res) => res)
+      .catch((err) => {
+        console.error(err);
+        throw new Error(
+          `An error occured when updating user survey array. ${err.message}`
+        );
+      });
+  }
+
+  // Delete the survey document.
+  surveyRef
     .delete()
-    .then(() => console.log(`survey ${surveyId} successfully deleted`))
-    .catch((error) => console.log('error deleting survey document', error));
+    .then()
+    .catch((err) => {
+      console.error(err);
+      throw new Error(
+        `An error occured when deleting the survey document. ${err.message}`
+      );
+    });
 };
 
 ///
