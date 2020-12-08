@@ -178,6 +178,31 @@ export const collectionRefToMap = async (collection) => {
 /// --> Returns the survey object formatted just as it is in the database.
 /// ////////////////////////////////////////
 export const createNewSurveyDocument = async (survey, user) => {
+  // Calculate survey summary details
+  const totalSurveyed = Object.keys(survey.data).reduce(
+    (acc, key) => acc + survey.data[key],
+    0
+  );
+
+  const totalActive = Object.keys(survey.data).reduce((acc, key) => {
+    const lowerKey = key.toLowerCase();
+    if (
+      lowerKey.includes('bike') ||
+      lowerKey.includes('walk') ||
+      lowerKey.includes('roll')
+    ) {
+      return acc + survey.data[key];
+    }
+    return acc;
+  }, 0);
+
+  const totalInactive = totalSurveyed - totalActive;
+
+  // get location summary data and update with current survey data
+  // 1. add survey counts to total survey counts
+  // 2. recalculate active transportation score
+  // 3. recalculate total amount surveyed
+
   // Format incoming survey and user data into form acceptable for database.
   const formatted = {
     createdAt: survey.createdAt,
@@ -202,51 +227,53 @@ export const createNewSurveyDocument = async (survey, user) => {
         { name: 'car', value: parseInt(survey.data.flCar) },
       ],
     },
+    totalSurveyed,
   };
+  console.log(formatted);
   // Create survey document in surveys collection
-  const surveyRef = firestore.collection('/surveys').doc();
-  const firestoreSurvey = { ...formatted, surveyId: surveyRef.id };
-  surveyRef
-    .set(firestoreSurvey)
-    .then()
-    .catch((err) => {
-      throw new Error(
-        `An error occured while creating a survey document. ${err}`
-      );
-    });
+  // const surveyRef = firestore.collection('/surveys').doc();
+  // const firestoreSurvey = { ...formatted, surveyId: surveyRef.id };
+  // surveyRef
+  //   .set(firestoreSurvey)
+  //   .then()
+  //   .catch((err) => {
+  //     throw new Error(
+  //       `An error occured while creating a survey document. ${err}`
+  //     );
+  //   });
   // Check if a user is associated with the incoming survey.
   // If true, add reference in user's surveys array.
   // If false, do not add a reference to a user's array.
-  if (user) {
-    const userRef = firestore.doc(`users/${user.uid}`);
-    userRef
-      .update({
-        surveys: firebase.firestore.FieldValue.arrayUnion(
-          firestore.doc(`surveys/${surveyRef.id}`)
-        ),
-      })
-      .then()
-      .catch((err) => {
-        throw new Error(
-          `An error occured while adding survey reference to user document. ${err}`
-        );
-      });
-  }
+  // if (user) {
+  //   const userRef = firestore.doc(`users/${user.uid}`);
+  //   userRef
+  //     .update({
+  //       surveys: firebase.firestore.FieldValue.arrayUnion(
+  //         firestore.doc(`surveys/${surveyRef.id}`)
+  //       ),
+  //     })
+  //     .then()
+  //     .catch((err) => {
+  //       throw new Error(
+  //         `An error occured while adding survey reference to user document. ${err}`
+  //       );
+  //     });
+  // }
   // Add reference to survey in location's surveys collection
-  const locationRef = firestore.doc(`locations/${survey.location}`);
-  locationRef
-    .update({
-      surveys: firebase.firestore.FieldValue.arrayUnion(
-        firestore.doc(`surveys/${surveyRef.id}`)
-      ),
-    })
-    .then()
-    .catch((err) => {
-      throw new Error(
-        `An error occured while adding survey reference to location document. ${err}`
-      );
-    });
-  return firestoreSurvey; // Return the survey object identical to the database object.
+  // const locationRef = firestore.doc(`locations/${survey.location}`);
+  // locationRef
+  //   .update({
+  //     surveys: firebase.firestore.FieldValue.arrayUnion(
+  //       firestore.doc(`surveys/${surveyRef.id}`)
+  //     ),
+  //   })
+  //   .then()
+  //   .catch((err) => {
+  //     throw new Error(
+  //       `An error occured while adding survey reference to location document. ${err}`
+  //     );
+  //   });
+  // return firestoreSurvey; // Return the survey object identical to the database object.
 };
 
 ///

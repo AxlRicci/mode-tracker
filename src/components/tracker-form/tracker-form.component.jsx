@@ -172,12 +172,6 @@ const TrackerForm = ({ location }) => {
 
   return (
     <Form>
-      {step === 3 ? (
-        <SurveyList
-          query={{ field: 'surveyId', value: survey.surveyId }}
-          editable
-        />
-      ) : null}
       {step !== 3 ? (
         <SurveyDetailSection
           handleChange={handleInputChange}
@@ -226,3 +220,10 @@ TrackerForm.propTypes = {
 };
 
 export default withRouter(TrackerForm);
+
+// {step === 3 ? (
+//   <SurveyList
+//     query={{ field: 'surveyId', value: survey.surveyId }}
+//     editable
+//   />
+// ) : null}
