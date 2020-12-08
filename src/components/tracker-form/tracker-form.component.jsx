@@ -62,6 +62,7 @@ const TrackerForm = ({ location }) => {
   const [survey, setSurvey] = useState();
   const [formValues, setFormValues] = useState(initialFormValues);
   const [validationErrors, setValidationErrors] = useState(initialErrorValues);
+  const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
     setFormValues((fVals) => ({
@@ -77,7 +78,8 @@ const TrackerForm = ({ location }) => {
         location: location.state.incomingLocation,
       }));
     }
-  }, [currentUser]);
+    setSubmitted(false);
+  }, [currentUser, location.state, submitted]);
 
   const handleInputChange = (event) => {
     const { name, value, type } = event.target;
@@ -160,6 +162,7 @@ const TrackerForm = ({ location }) => {
             },
           ]);
           setStep(3);
+          setSubmitted(true);
         })
         .catch((err) => {
           setAlerts([...alerts, { type: 'fail', message: err.message }]);
