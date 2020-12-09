@@ -21,7 +21,6 @@ export const firestore = firebase.firestore();
 /// firestore utility functions
 /// ///////////////////////////////////////////////////////////////////////////////////////
 
-///
 /// ** Create user document on signup **
 /// Notes: Runs everytime a user signs in.
 /// If a user does not exist in the database, the function will create a new record for that user.
@@ -59,7 +58,6 @@ export const createUserDocument = async (authResult) => {
   return user; // Returns the user data incase it is needed.
 };
 
-///
 /// ** Fetch user profile data **
 /// Notes: Fetches a user's document from the database using the unique user id.
 /// --> Returns the data from the user document or error object.
@@ -81,7 +79,6 @@ export const fetchUserDocument = async (uid) => {
     });
 };
 
-///
 /// ** Fetch a location document **
 /// Notes: Fetches a location document from the database using a locationId.
 /// --> Returns a location object. On error returns an error object
@@ -103,7 +100,6 @@ export const fetchLocationDocument = async (locationId) => {
     });
 };
 
-///
 /// ** Fetch all location documents **
 /// Notes: Fetches all location documents available in the locations collection.
 /// --> Returns an array of location objects.
@@ -125,7 +121,6 @@ export const fetchAllLocationData = async () => {
     });
 };
 
-///
 /// ** Save profile updates to firestore **
 /// Notes: Saves updates made to user profile to database.
 /// --> Returns nothing.
@@ -157,7 +152,6 @@ export const updateUserDocument = async (uid, userProfile) => {
     });
 };
 
-///
 /// ** Map all documents in a collection **
 /// Notes: Takes a collection reference and iterates through all documents fetching data for each.
 /// --> Returns an array of document objects.
@@ -168,7 +162,6 @@ export const collectionRefToMap = async (collection) => {
   return collectionMap;
 };
 
-///
 /// ** Submit survey form to database **
 /// Notes: Takes a survey object and user object, varifies and formats the data and then makes multiple entries in the database.
 /// Entry 1: A survey document with the formatted survey is created in the surveys collection
@@ -178,12 +171,38 @@ export const collectionRefToMap = async (collection) => {
 /// --> Returns the survey object formatted just as it is in the database.
 /// ////////////////////////////////////////
 export const createNewSurveyDocument = async (survey, user) => {
-  // Calculate survey summary details
+  //* 1. Calculate survey summary details
+
+  // Calculate the total amount of answers for the survey.
   const totalSurveyed = Object.keys(survey.data).reduce(
     (acc, key) => acc + survey.data[key],
     0
   );
 
+  // Combine mode counts from both to and from directions. Output an array of objects.
+  const combinedSurveyModeCounts = Object.keys(survey.data).reduce(
+    (allModes, key) => {
+      const mode = key.slice(2).charAt(0).toLowerCase() + key.slice(3);
+      const modeIndex = allModes.map((e) => e.name).indexOf(mode);
+      if (modeIndex !== -1) {
+        // if object exists update value in list
+        allModes[modeIndex] = {
+          ...allModes[modeIndex],
+          value: (allModes[modeIndex].value += survey.data[key]),
+        };
+      } else {
+        // if object does not exist in list create new object
+        allModes.push({
+          name: mode,
+          value: survey.data[key],
+        });
+      }
+      return allModes;
+    },
+    []
+  );
+
+  // Calculate the total number who use active modes (bike, walk, or roll)
   const totalActive = Object.keys(survey.data).reduce((acc, key) => {
     const lowerKey = key.toLowerCase();
     if (
@@ -196,12 +215,11 @@ export const createNewSurveyDocument = async (survey, user) => {
     return acc;
   }, 0);
 
+  // Calculate the total number that use inactive modes (schoolbus, publicTrans, car)
   const totalInactive = totalSurveyed - totalActive;
 
-  // get location summary data and update with current survey data
-  // 1. add survey counts to total survey counts
-  // 2. recalculate active transportation score
-  // 3. recalculate total amount surveyed
+  // Calculate the active transportation score. % who use active transportation.
+  const activeScore = totalActive / totalSurveyed;
 
   // Format incoming survey and user data into form acceptable for database.
   const formatted = {
@@ -227,56 +245,104 @@ export const createNewSurveyDocument = async (survey, user) => {
         { name: 'car', value: parseInt(survey.data.flCar) },
       ],
     },
-    totalSurveyed,
+    summary: {
+      totalSurveyed,
+      totalActive,
+      totalInactive,
+      activeScore,
+    },
   };
-  console.log(formatted);
-  // Create survey document in surveys collection
-  // const surveyRef = firestore.collection('/surveys').doc();
-  // const firestoreSurvey = { ...formatted, surveyId: surveyRef.id };
-  // surveyRef
-  //   .set(firestoreSurvey)
-  //   .then()
-  //   .catch((err) => {
-  //     throw new Error(
-  //       `An error occured while creating a survey document. ${err}`
-  //     );
-  //   });
-  // Check if a user is associated with the incoming survey.
-  // If true, add reference in user's surveys array.
-  // If false, do not add a reference to a user's array.
-  // if (user) {
-  //   const userRef = firestore.doc(`users/${user.uid}`);
-  //   userRef
-  //     .update({
-  //       surveys: firebase.firestore.FieldValue.arrayUnion(
-  //         firestore.doc(`surveys/${surveyRef.id}`)
-  //       ),
-  //     })
-  //     .then()
-  //     .catch((err) => {
-  //       throw new Error(
-  //         `An error occured while adding survey reference to user document. ${err}`
-  //       );
-  //     });
-  // }
-  // Add reference to survey in location's surveys collection
-  // const locationRef = firestore.doc(`locations/${survey.location}`);
-  // locationRef
-  //   .update({
-  //     surveys: firebase.firestore.FieldValue.arrayUnion(
-  //       firestore.doc(`surveys/${surveyRef.id}`)
-  //     ),
-  //   })
-  //   .then()
-  //   .catch((err) => {
-  //     throw new Error(
-  //       `An error occured while adding survey reference to location document. ${err}`
-  //     );
-  //   });
-  // return firestoreSurvey; // Return the survey object identical to the database object.
+
+  //* Create survey document in surveys collection
+  const surveyRef = firestore.collection('/surveys').doc();
+  const firestoreSurvey = { ...formatted, surveyId: surveyRef.id };
+  surveyRef
+    .set(firestoreSurvey)
+    .then()
+    .catch((err) => {
+      throw new Error(
+        `An error occured while creating a survey document. ${err}`
+      );
+    });
+
+  //* Add reference in user's surveys array.
+  // First, check if a user is associated with the incoming survey.
+  if (user) {
+    const userRef = firestore.doc(`users/${user.uid}`);
+    userRef
+      .update({
+        surveys: firebase.firestore.FieldValue.arrayUnion(
+          firestore.doc(`surveys/${surveyRef.id}`)
+        ),
+      })
+      .then()
+      .catch((err) => {
+        throw new Error(
+          `An error occured while adding survey reference to user document. ${err}`
+        );
+      });
+  }
+
+  //* Update summary data for location and add reference to survey.
+  const locationRef = firestore.doc(`locations/${survey.location}`);
+  locationRef
+    .get()
+    .then((res) => {
+      const locationData = res.data();
+      const { summary } = locationData;
+
+      // add survey counts to totals
+      const newModeCountTotals = summary.data.map((mode) => {
+        const modeIndex = combinedSurveyModeCounts
+          .map((e) => e.name)
+          .indexOf(mode.name);
+        return {
+          name: mode.name,
+          value: mode.value + combinedSurveyModeCounts[modeIndex].value,
+        };
+      });
+
+      // recalculate active transportation score.
+      const newActiveScore = summary.activeScore
+        ? (summary.activeScore + activeScore) / 2
+        : activeScore;
+
+      // recalculate total amount surveyed
+      const newTotalSurveyed = summary.totalSurveyed + totalSurveyed;
+      const newTotalActive = summary.totalActive + totalActive;
+      const newTotalInactive = summary.totalInactive + totalInactive;
+
+      // update location document with new data;
+      locationRef
+        .update({
+          summary: {
+            activeScore: newActiveScore,
+            totalActive: newTotalActive,
+            totalInactive: newTotalInactive,
+            totalSurveyed: newTotalSurveyed,
+            data: newModeCountTotals,
+          },
+          surveys: firebase.firestore.FieldValue.arrayUnion(
+            firestore.doc(`surveys/${surveyRef.id}`)
+          ),
+        })
+        .then()
+        .catch((err) => {
+          console.error(err);
+          throw new Error(
+            `An error occured while updating the location document. ${err}`
+          );
+        });
+    })
+    .catch((err) => {
+      console.error(err);
+      throw new Error(
+        `An error occured while fetching location document. ${err}`
+      );
+    });
+  return firestoreSurvey; // Return the survey object identical to the database object.
 };
 
-///
 /// ** Update mode values in a survey **
 /// Notes: Replaces the survey at a specific id with an newValueObject.
 /// The newValue object includes keys:
@@ -317,7 +383,6 @@ export const updateSurveyData = async (surveyId, newValueObject) => {
     });
 };
 
-///
 /// ** Delete survey **
 /// Notes: Deletes a survey from the database using a surveyId.
 /// --> returns nothing (..yet, will have error handling).
@@ -381,7 +446,6 @@ export const deleteSurvey = async (surveyId) => {
     });
 };
 
-///
 /// ** Fetch (and optionally format) data for a specific location and direction **
 /// Notes: Compiles the numbers for each mode type for all surveys for a specific direction.
 /// Graph format: formatted for recharts library (array of objects)
@@ -436,7 +500,6 @@ export const getAllSurveyData = async (locationId, direction, format) => {
   return tally;
 };
 
-///
 /// ** Gets a transportation totals for a location **
 /// Notes: Takes a locationId and then returns the % of respondants that use active transportation.
 /// --> Returns: a decimal value.
@@ -482,7 +545,6 @@ export const getTransportTotals = async (locationId) => {
   return 0;
 };
 
-///
 /// ** location List with atScore **
 /// --> Returns an array of llocation objects with an additional object with combined transportation data.
 /// ////////////////////////////////////////
@@ -504,7 +566,6 @@ export const locationListWithAdditionalData = async () => {
   return newarray;
 };
 
-///
 /// ** Create Location document in Firestore **
 /// Notes: Takes a mapbox location search result object, checks for its existance in the database,
 /// then adds a new document to the locations collection.
@@ -524,6 +585,20 @@ export const createNewLocationDocument = async (result, name, type) => {
           locationName: name,
           locationType: type,
           surveys: [],
+          summary: {
+            activeScore: 0,
+            totalActive: 0,
+            totalInactive: 0,
+            totalSurveyed: 0,
+            data: [
+              { name: 'bike', value: 0 },
+              { name: 'walk', value: 0 },
+              { name: 'roll', value: 0 },
+              { name: 'schoolbus', value: 0 },
+              { name: 'publicTrans', value: 0 },
+              { name: 'car', value: 0 },
+            ],
+          },
         };
         locationRef
           .set(newLocation)
@@ -542,7 +617,6 @@ export const createNewLocationDocument = async (result, name, type) => {
     });
 };
 
-///
 /// ** Configuration for Firebase auth ui **
 /// ////////////////////////////////////////
 export const uiConfig = {
