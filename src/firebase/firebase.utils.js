@@ -27,12 +27,14 @@ export const firestore = firebase.firestore();
 /// --> Retuns a user object
 /// /////////////////////////////////////
 export const createUserDocument = async (authResult) => {
+  console.log(authResult);
   // Take authResult from firebase.auth signin and query the database for the user's document.
   const { user } = authResult;
-  const userRef = firestore.doc(`/users/${user.uid}`);
+  const userRef = firestore.doc(`users/${user.uid}`);
   userRef
     .get()
     .then((userDoc) => {
+      console.log(userDoc);
       // If the document does not exist, a new document is created using the user data provided by authResult.
       if (!userDoc.exists) {
         userRef
@@ -63,16 +65,16 @@ export const createUserDocument = async (authResult) => {
 /// --> Returns the data from the user document or error object.
 /// ////////////////////////////////////////
 export const fetchUserDocument = async (uid) => {
-  const userRef = firestore.doc(`/users/${uid}`);
+  const userRef = firestore.doc(`users/${uid}`);
   return userRef
     .get()
     .then((userDoc) => {
       if (userDoc.exists) {
         return userDoc.data();
       }
-      throw new Error(
-        'An error occured. The User document requested does not exist.'
-      );
+      // throw new Error(
+      //   'An error occured. The User document requested does not exist.'
+      // );
     })
     .catch((err) => {
       throw new Error(err);
@@ -303,9 +305,8 @@ export const createNewSurveyDocument = async (survey, user) => {
       });
 
       // recalculate active transportation score.
-      const newActiveScore = summary.activeScore
-        ? (summary.activeScore + activeScore) / 2
-        : activeScore;
+      const newActiveScore =
+        totalSurveyed > 0 ? summary.totalActive / summary.totalSurveyed : 0;
 
       // recalculate total amount surveyed
       const newTotalSurveyed = summary.totalSurveyed + totalSurveyed;
@@ -355,32 +356,123 @@ export const updateSurveyData = async (surveyId, newValueObject) => {
   const { direction, name, value } = newValueObject;
 
   const surveyRef = firestore.doc(`surveys/${surveyId}`);
-  const surveyDoc = await surveyRef.get();
-  const surveyData = surveyDoc.data();
-  // Attempt to update the survey.
-  surveyRef
-    .update({
-      ...surveyData,
-      data: {
-        ...surveyData.data,
-        [direction]: [
-          // Spreads in the new survey data for a specific direction.
-          ...surveyData.data[direction].map((mode) => {
-            // Checks to see if the current value is the value that needs to be updated.
-            if (mode.name === name) {
-              return { name, value }; // Updates the value by replacing its object.
-            }
-            return mode; // If it is not the one to be updated the original is returned.
-          }),
-        ],
-      },
-    })
-    .then()
+  const surveyData = await surveyRef
+    .get()
+    .then((res) => res.data())
     .catch((err) => {
-      throw new Error(
-        `An error occurred when updating survey data cell. ${err}`
-      );
+      console.error(err);
     });
+
+  const locationRef = firestore.doc(`locations/${surveyData.location}`);
+  const locationData = await locationRef
+    .get()
+    .then((res) => res.data())
+    .catch((err) => {
+      console.error(err);
+    });
+
+  const indexOfLocationMode = locationData.summary.data
+    .map((e) => e.name)
+    .indexOf(name);
+
+  const indexOfSurveyMode = surveyData.data[direction]
+    .map((e) => e.name)
+    .indexOf(name);
+
+  const newLocationSummaryModeValue =
+    locationData.summary.data[indexOfLocationMode].value -
+    surveyData.data[direction][indexOfSurveyMode].value +
+    value;
+
+  const newSummaryData = locationData.summary.data.map((mode) => {
+    if (mode.name === name) {
+      return { ...mode, value: newLocationSummaryModeValue };
+    }
+    return mode;
+  });
+
+  const newTotalSurveyed = newSummaryData.reduce(
+    (acc, mode) => acc + mode.value,
+    0
+  );
+
+  const newTotalActive = newSummaryData.reduce((acc, mode) => {
+    if (mode.name === 'bike' || mode.name === 'walk' || mode.name === 'roll') {
+      return acc + mode.value;
+    }
+    return acc;
+  }, 0);
+
+  const newTotalInactive = newTotalSurveyed - newTotalActive;
+
+  const newActiveScore = newTotalActive / newTotalSurveyed;
+
+  // TODO: this needs to be worked on.
+  const updatedSurveyDoc = {
+    ...surveyData,
+    data: {
+      ...surveyData.data,
+      [direction]: [
+        ...surveyData.data[direction].map((mode) => {
+          if (mode.name === name) {
+            return { name, value };
+          }
+          return mode;
+        }),
+      ],
+    },
+    summary: {
+      // TODO Add updated survey Summary stats.
+    },
+  };
+
+  // ? This works..
+  const updatedLocationDoc = {
+    ...locationData,
+    summary: {
+      data: newSummaryData,
+      activeScore: newActiveScore,
+      totalActive: newTotalActive,
+      totalInactive: newTotalInactive,
+      totalSurveyed: newTotalSurveyed,
+    },
+  };
+  console.log(newSummaryData);
+  console.log(surveyData, updatedSurveyDoc);
+  console.log(locationData, updatedLocationDoc);
+
+  // Attempt to update the survey.
+  // surveyRef
+  //   .update({
+  //     ...surveyData,
+  //     data: {
+  //       ...surveyData.data,
+  //       [direction]: [
+  //         // Spreads in the new survey data for a specific direction.
+  //         ...surveyData.data[direction].map((mode) => {
+  //           // Checks to see if the current value is the value that needs to be updated.
+  //           if (mode.name === name) {
+  //             return { name, value }; // Updates the value by replacing its object.
+  //           }
+  //           return mode; // If it is not the one to be updated the original is returned.
+  //         }),
+  //       ],
+  //     },
+  //   })
+  //   .then()
+  //   .catch((err) => {
+  //     throw new Error(
+  //       `An error occurred when updating survey data cell. ${err}`
+  //     );
+  //   });
+
+  // // Update Location statistics
+  // const locationRef = firestore.doc(`locations/${surveyData.location}`);
+  // locationRef.get()
+  //   .then((res) => {
+  //     const locationData = res.data();
+  //     // locationData.summary.data[name] -= surveyData.data[direction][name]
+  //   })
 };
 
 /// ** Delete survey **
@@ -623,10 +715,10 @@ export const uiConfig = {
   callbacks: {
     signInSuccessWithAuthResult: (authResult) => {
       createUserDocument(authResult);
-      return true;
+      return false;
     },
   },
-  signInSuccessUrl: '/profile',
+  signInSuccessUrl: '/',
   signInFlow: 'popup',
   signInOptions: [
     firebase.auth.GoogleAuthProvider.PROVIDER_ID,

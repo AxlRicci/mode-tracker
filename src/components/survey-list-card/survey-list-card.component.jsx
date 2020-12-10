@@ -29,7 +29,7 @@ const SurveyListCard = ({ survey, editable }) => {
   if (location) {
     const date = new Date(survey.createdAt);
     const year = date.getFullYear();
-    const month = date.getMonth();
+    const month = date.getMonth() + 1;
     const day = date.getDate();
     const formattedDate = `${month}-${day}-${year}`;
 

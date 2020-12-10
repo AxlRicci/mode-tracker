@@ -35,7 +35,8 @@ const SurveyEditModal = ({ show, handleClose, data }) => {
         handleClose();
       })
       .catch((err) => {
-        setAlerts([...alerts, { type: 'fail', message: err.message }]);
+        console.log(err);
+        // setAlerts([...alerts, { type: 'fail', message: err.message }]);
       });
   };
 
