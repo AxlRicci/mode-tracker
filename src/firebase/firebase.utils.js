@@ -371,6 +371,7 @@ export const updateSurveyData = async (surveyId, newValueObject) => {
       console.error(err);
     });
 
+  // Recalculate the mode counts for the location summary data.
   const indexOfLocationMode = locationData.summary.data
     .map((e) => e.name)
     .indexOf(name);
@@ -379,35 +380,89 @@ export const updateSurveyData = async (surveyId, newValueObject) => {
     .map((e) => e.name)
     .indexOf(name);
 
-  const newLocationSummaryModeValue =
+  const updatedLocationSummaryModeValue =
     locationData.summary.data[indexOfLocationMode].value -
     surveyData.data[direction][indexOfSurveyMode].value +
     value;
 
-  const newSummaryData = locationData.summary.data.map((mode) => {
+  const updatedLocationSummaryData = locationData.summary.data.map((mode) => {
     if (mode.name === name) {
-      return { ...mode, value: newLocationSummaryModeValue };
+      return { ...mode, value: updatedLocationSummaryModeValue };
     }
     return mode;
   });
 
-  const newTotalSurveyed = newSummaryData.reduce(
-    (acc, mode) => acc + mode.value,
-    0
+  // update the survey with new value.
+  const updatedSurveyDirectionData = surveyData.data[direction].map((mode) => {
+    if (mode.name === name && mode.value !== value) {
+      return { name, value };
+    }
+    return mode;
+  });
+
+  const oppositeDirection = direction === 'to' ? 'to' : 'from';
+
+  // Compile mode counts from both directions for summary recalculations.
+  const allSurveyData = [
+    ...updatedSurveyDirectionData,
+    ...surveyData.data[oppositeDirection],
+  ];
+
+  console.log(updatedSurveyDirectionData, allSurveyData);
+
+  const getActiveCount = (combinedModeCounts) =>
+    combinedModeCounts.reduce((acc, mode) => {
+      if (
+        mode.name === 'bike' ||
+        mode.name === 'walk' ||
+        mode.name === 'roll'
+      ) {
+        return acc + mode.value;
+      }
+      return acc;
+    }, 0);
+
+  const getSurveyedCount = (combinedModeCounts) =>
+    combinedModeCounts.reduce((acc, mode) => acc + mode.value, 0);
+
+  const getInactiveCount = (activeCount, totalCount) =>
+    totalCount - activeCount;
+
+  const getActiveScore = (surveyCount, activeCount) =>
+    activeCount / surveyCount;
+
+  // Recalculate summary stats for locationDocument.
+  const updatedLocationTotalSurveyed = getSurveyedCount(
+    updatedLocationSummaryData
   );
 
-  const newTotalActive = newSummaryData.reduce((acc, mode) => {
-    if (mode.name === 'bike' || mode.name === 'walk' || mode.name === 'roll') {
-      return acc + mode.value;
-    }
-    return acc;
-  }, 0);
+  const updatedLocationTotalActive = getActiveCount(updatedLocationSummaryData);
 
-  const newTotalInactive = newTotalSurveyed - newTotalActive;
+  const updatedLocationTotalInactive = getInactiveCount(
+    updatedLocationTotalActive,
+    updatedLocationTotalSurveyed
+  );
 
-  const newActiveScore = newTotalActive / newTotalSurveyed;
+  const updatedLocationActiveScore = getActiveScore(
+    updatedLocationTotalSurveyed,
+    updatedLocationTotalActive
+  );
 
-  // TODO: this needs to be worked on.
+  // Recalculate summary statistics for survey document.
+  const updatedSurveyTotalSurveyed = getSurveyedCount(allSurveyData);
+
+  const updatedSurveyTotalActive = getActiveCount(allSurveyData);
+
+  const updatedSurveyTotalInactive = getInactiveCount(
+    updatedSurveyTotalActive,
+    updatedSurveyTotalSurveyed
+  );
+
+  const updatedSurveyActiveScore = getActiveScore(
+    updatedSurveyTotalSurveyed,
+    updatedSurveyTotalActive
+  );
+
   const updatedSurveyDoc = {
     ...surveyData,
     data: {
@@ -422,57 +477,37 @@ export const updateSurveyData = async (surveyId, newValueObject) => {
       ],
     },
     summary: {
-      // TODO Add updated survey Summary stats.
+      activeScore: updatedSurveyActiveScore,
+      totalActive: updatedSurveyTotalActive,
+      totalInactive: updatedSurveyTotalInactive,
+      totalSurveyed: updatedSurveyTotalSurveyed,
     },
   };
 
-  // ? This works..
   const updatedLocationDoc = {
     ...locationData,
     summary: {
-      data: newSummaryData,
-      activeScore: newActiveScore,
-      totalActive: newTotalActive,
-      totalInactive: newTotalInactive,
-      totalSurveyed: newTotalSurveyed,
+      data: updatedLocationSummaryData,
+      activeScore: updatedLocationActiveScore,
+      totalActive: updatedLocationTotalActive,
+      totalInactive: updatedLocationTotalInactive,
+      totalSurveyed: updatedLocationTotalSurveyed,
     },
   };
-  console.log(newSummaryData);
-  console.log(surveyData, updatedSurveyDoc);
-  console.log(locationData, updatedLocationDoc);
-
-  // Attempt to update the survey.
-  // surveyRef
-  //   .update({
-  //     ...surveyData,
-  //     data: {
-  //       ...surveyData.data,
-  //       [direction]: [
-  //         // Spreads in the new survey data for a specific direction.
-  //         ...surveyData.data[direction].map((mode) => {
-  //           // Checks to see if the current value is the value that needs to be updated.
-  //           if (mode.name === name) {
-  //             return { name, value }; // Updates the value by replacing its object.
-  //           }
-  //           return mode; // If it is not the one to be updated the original is returned.
-  //         }),
-  //       ],
-  //     },
-  //   })
-  //   .then()
-  //   .catch((err) => {
-  //     throw new Error(
-  //       `An error occurred when updating survey data cell. ${err}`
-  //     );
-  //   });
-
-  // // Update Location statistics
-  // const locationRef = firestore.doc(`locations/${surveyData.location}`);
-  // locationRef.get()
-  //   .then((res) => {
-  //     const locationData = res.data();
-  //     // locationData.summary.data[name] -= surveyData.data[direction][name]
-  //   })
+  // set update locations and iterate through the array to update.
+  const updateLocations = [surveyRef, locationRef];
+  updateLocations.forEach((reference) => {
+    let updateDoc = null;
+    if (reference === surveyRef) {
+      updateDoc = updatedSurveyDoc;
+    } else if (reference === locationRef) {
+      updateDoc = updatedLocationDoc;
+    }
+    reference
+      .update(updateDoc)
+      .then()
+      .catch((err) => console.error(err));
+  });
 };
 
 /// ** Delete survey **
