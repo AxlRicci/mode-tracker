@@ -43,6 +43,8 @@ export const createUserDocument = async (authResult) => {
             displayName: user.displayName,
             createdAt: new Date(),
             surveys: [],
+            grade: '',
+            location: '',
           })
           .then()
           .catch((err) => {
