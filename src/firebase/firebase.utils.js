@@ -221,7 +221,7 @@ export const createNewSurveyDocument = async (survey, user) => {
   const totalInactive = totalSurveyed - totalActive;
 
   // Calculate the active transportation score. % who use active transportation.
-  const activeScore = totalActive / totalSurveyed;
+  const activeScore = totalSurveyed ? totalActive / totalSurveyed : 0;
 
   // Format incoming survey and user data into form acceptable for database.
   const formatted = {
@@ -400,7 +400,8 @@ export const updateSurveyData = async (surveyId, newValueObject) => {
     return mode;
   });
 
-  const oppositeDirection = direction === 'to' ? 'to' : 'from';
+  const oppositeDirection = direction === 'to' ? 'from' : 'to';
+  console.log(direction, oppositeDirection);
 
   // Compile mode counts from both directions for summary recalculations.
   const allSurveyData = [
@@ -428,8 +429,8 @@ export const updateSurveyData = async (surveyId, newValueObject) => {
   const getInactiveCount = (activeCount, totalCount) =>
     totalCount - activeCount;
 
-  const getActiveScore = (surveyCount, activeCount) =>
-    activeCount / surveyCount;
+  const getActiveScore = (activeCount, totalSurveyedCount) =>
+    activeCount / totalSurveyedCount;
 
   // Recalculate summary stats for locationDocument.
   const updatedLocationTotalSurveyed = getSurveyedCount(
@@ -444,8 +445,8 @@ export const updateSurveyData = async (surveyId, newValueObject) => {
   );
 
   const updatedLocationActiveScore = getActiveScore(
-    updatedLocationTotalSurveyed,
-    updatedLocationTotalActive
+    updatedLocationTotalActive,
+    updatedLocationTotalSurveyed
   );
 
   // Recalculate summary statistics for survey document.
@@ -459,8 +460,8 @@ export const updateSurveyData = async (surveyId, newValueObject) => {
   );
 
   const updatedSurveyActiveScore = getActiveScore(
-    updatedSurveyTotalSurveyed,
-    updatedSurveyTotalActive
+    updatedSurveyTotalActive,
+    updatedSurveyTotalSurveyed
   );
 
   const updatedSurveyDoc = {
