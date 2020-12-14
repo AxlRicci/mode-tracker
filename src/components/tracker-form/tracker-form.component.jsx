@@ -149,7 +149,6 @@ const TrackerForm = ({ location }) => {
 
     // check if form is valid and submit.
     if (!validationErrorList) {
-      console.log('...clearning');
       createNewSurveyDocument(surveyDocument, currentUser)
         .then((surveyDoc) => {
           setFormValues(initialFormValues);

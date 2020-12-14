@@ -10,7 +10,6 @@ export const trackerFormValidation = (formData) => {
     // Add any errors found to the errors object.
     if (field === 'data') {
       // iterate over data fields and check that they are integers.
-      console.log('accessed datafield');
       Object.keys(formData[field]).forEach((responseField) => {
         if (!Number.isInteger(formData[field][responseField])) {
           errorOccured = true; // if error is found toggle errorOccured.
@@ -36,6 +35,19 @@ export const trackerFormValidation = (formData) => {
       }
     }
   });
+
+  // check if number of students surveyed > 0
+  const responseCount = Object.keys(formData.data).reduce(
+    (acc, field) => acc + formData.data[field],
+    0
+  );
+  if (responseCount <= 0) {
+    errorOccured = true;
+    errors = {
+      ...errors,
+      tlBikeError: 'Total number of students surveyed must be greater than 0',
+    };
+  }
   if (errorOccured) {
     return errors;
   }
