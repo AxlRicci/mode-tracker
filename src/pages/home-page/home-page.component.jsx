@@ -5,12 +5,9 @@ import HeroSection from '../../components/hero-section/hero-section.component';
 import InfoCardSection from '../../components/info-card-section/info-card-section.component';
 import CtaSection from '../../components/cta-section/cta-section.component';
 
-import TestButton from '../../components/test-button/test-button.component';
-
 const HomePage = ({ history }) => (
   <div className="home-page">
     <HeroSection />
-    <TestButton />
     <InfoCardSection />
     <CtaSection
       heading="Take Modal For A Spin"

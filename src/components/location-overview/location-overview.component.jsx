@@ -23,25 +23,14 @@ const LocationOverview = ({
     params: { id },
   },
 }) => {
-  const [locationData, setLocationData] = useState(null);
-  const [locationMetrics, setLocationMetrics] = useState({
-    activeScore: 0,
-    totalSurveyed: 0,
-    data: [],
-  });
+  const [location, setLocation] = useState(null);
   const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
     const getData = async () => {
       if (id) {
-        const locationDoc = await fetchLocationDocument(id);
-        setLocationData(locationDoc);
-        const transportTotals = await getTransportTotals(id);
-        setLocationMetrics({
-          activeScore: transportTotals.activeScore,
-          totalSurveyed: transportTotals.totalSurveyed,
-          data: transportTotals.data,
-        });
+        const locationData = await fetchLocationDocument(id);
+        setLocation(locationData);
       }
       setLoading(false);
     };
@@ -55,15 +44,18 @@ const LocationOverview = ({
       </Jumbotron>
     );
 
-  const { totalSurveyed, activeScore, data } = locationMetrics;
+  const { activeScore, data, totalSurveyed } = location.summary;
+  const { locationName } = location;
   return (
     <Jumbotron className="bg-light">
-      {locationMetrics.data ? (
+      {location.summary ? (
         <Row>
           <Col>
             <h2>Overview</h2>
-            <p>{`At ${locationData.locationName}, ${activeScore}% of students use sustainable modes of transportation (biking, walking, rolling) to get to and from school. 
-            In total ${totalSurveyed} students have been surveyed to gather this mode split.`}</p>
+            <p>{`At ${locationName}, ${Math.round(
+              activeScore * 100
+            )}% of students use sustainable modes of transportation (biking, walking, rolling) to get to and from school. 
+            In total, ${totalSurveyed} students have been surveyed to calculate this mode split.`}</p>
           </Col>
           <Col>
             <SurveyGraph survey={data} percentage />

@@ -10,7 +10,7 @@ import Tooltip from 'react-bootstrap/Tooltip';
 import MySpinner from '../my-spinner/my-spinner.component';
 import { ReactComponent as Icon } from '../../assets/info.svg';
 
-import { locationListWithAdditionalData } from '../../firebase/firebase.utils';
+import { fetchAllLocationData } from '../../firebase/firebase.utils';
 
 const LocationList = ({ history }) => {
   const [locations, setLocations] = useState([]);
@@ -20,7 +20,7 @@ const LocationList = ({ history }) => {
 
   useEffect(() => {
     const getAndSetLocationList = async () => {
-      const locationList = await locationListWithAdditionalData();
+      const locationList = await fetchAllLocationData();
       setLocations(locationList);
       setLoading(false);
     };
@@ -74,8 +74,8 @@ const LocationList = ({ history }) => {
                       show={show}
                       style={style}
                     >
-                      The active score is the percentage of students who bike,
-                      walk or roll to school.
+                      The percentage of students who bike, walk or roll to
+                      school.
                     </Tooltip>
                   );
                 }}
@@ -94,8 +94,8 @@ const LocationList = ({ history }) => {
                 {location.locationAddress}
               </td>
               <td>
-                {location.totals.activeScore
-                  ? `${location.totals.activeScore}%`
+                {location.summary.activeScore
+                  ? `${Math.round(location.summary.activeScore * 100)}%`
                   : 'No Data'}
               </td>
             </tr>
