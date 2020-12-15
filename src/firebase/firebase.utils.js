@@ -18,23 +18,33 @@ firebase.initializeApp(firebaseConfig);
 // export firestore
 export const firestore = firebase.firestore();
 
+/// ** Configuration for Firebase auth ui **
+export const uiConfig = {
+  callbacks: {
+    signInSuccessWithAuthResult: () => true,
+  },
+  signInSuccessUrl: '/profile',
+  signInFlow: 'popup',
+  signInOptions: [
+    firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+    firebase.auth.EmailAuthProvider.PROVIDER_ID,
+  ],
+};
+
 /// firestore utility functions
 /// ///////////////////////////////////////////////////////////////////////////////////////
 
-/// ** Create user document on signup **
+/// ** login process for new and existing users **
 /// Notes: Runs everytime a user signs in.
 /// If a user does not exist in the database, the function will create a new record for that user.
+/// Then fetches user data from the database and updates user context.
 /// --> Retuns a user object
 /// /////////////////////////////////////
-export const createUserDocument = async (authResult) => {
-  console.log(authResult);
-  // Take authResult from firebase.auth signin and query the database for the user's document.
-  const { user } = authResult;
+export const userLogin = async (user) => {
   const userRef = firestore.doc(`users/${user.uid}`);
-  userRef
+  await userRef
     .get()
     .then((userDoc) => {
-      console.log(userDoc);
       // If the document does not exist, a new document is created using the user data provided by authResult.
       if (!userDoc.exists) {
         userRef
@@ -48,18 +58,52 @@ export const createUserDocument = async (authResult) => {
           })
           .then()
           .catch((err) => {
-            throw new Error(
-              `An error occured when creating a new user document: ${err}`
-            );
+            console.error(err);
           });
-      } else {
-        throw new Error('An error occured. User already exists. Please login');
       }
     })
     .catch((err) => {
-      throw new Error(err);
+      console.error(err);
     });
-  return user; // Returns the user data incase it is needed.
+
+  const userDocument = await userRef
+    .get()
+    .then((userDoc) => userDoc.data())
+    .catch((err) => {
+      console.error(err);
+    });
+  return userDocument; // Returns the user data incase it is needed.
+};
+
+/// ** Save profile updates to firestore **
+/// Notes: Saves updates made to user profile to database.
+/// --> Returns nothing.
+/// ////////////////////////////////////////
+export const updateUserDocument = async (uid, userProfile) => {
+  const userRef = firestore.doc(`users/${uid}`);
+  return userRef
+    .get()
+    .then((userDoc) => {
+      if (userDoc.exists) {
+        const userData = userDoc.data();
+        userRef
+          .set({
+            ...userData,
+            ...userProfile,
+          })
+          .then()
+          .catch((error) => {
+            throw new Error(
+              `Sorry an error occured while updating profile. Error: ${error}`
+            );
+          });
+      } else {
+        throw new Error('User document does not exist. Please login again.');
+      }
+    })
+    .catch((error) => {
+      throw new Error(error);
+    });
 };
 
 /// ** Fetch user profile data **
@@ -74,9 +118,60 @@ export const fetchUserDocument = async (uid) => {
       if (userDoc.exists) {
         return userDoc.data();
       }
-      // throw new Error(
-      //   'An error occured. The User document requested does not exist.'
-      // );
+      throw new Error(
+        'An error occured. The User document requested does not exist. Please log in again'
+      );
+    })
+    .catch((err) => {
+      throw new Error(err);
+    });
+};
+
+/// ** Create Location document in Firestore **
+/// Notes: Takes a mapbox location search result object, checks for its existance in the database,
+/// then adds a new document to the locations collection.
+/// --> Returns: Location object if successful
+/// ////////////////////////////////////////
+export const createNewLocationDocument = async (result, name, type) => {
+  const locationId = result.id.split('.')[1];
+  const locationRef = firestore.doc(`locations/${locationId}`);
+  await locationRef
+    .get()
+    .then((locationDoc) => {
+      if (!locationDoc.exists) {
+        const newLocation = {
+          locationId,
+          locationAddress: result.place_name,
+          locationCoords: result.center,
+          locationName: name,
+          locationType: type,
+          surveys: [],
+          summary: {
+            activeScore: 0,
+            totalActive: 0,
+            totalInactive: 0,
+            totalSurveyed: 0,
+            data: [
+              { name: 'bike', value: 0 },
+              { name: 'walk', value: 0 },
+              { name: 'roll', value: 0 },
+              { name: 'schoolbus', value: 0 },
+              { name: 'publicTrans', value: 0 },
+              { name: 'car', value: 0 },
+            ],
+          },
+        };
+        locationRef
+          .set(newLocation)
+          .then()
+          .catch((err) => {
+            throw new Error(
+              `An error occured when creating a new location document. ${err}`
+            );
+          });
+        return newLocation;
+      }
+      throw new Error('The location already exists in the Modal Database');
     })
     .catch((err) => {
       throw new Error(err);
@@ -122,37 +217,6 @@ export const fetchAllLocationData = async () => {
     })
     .catch((err) => {
       throw new Error(err);
-    });
-};
-
-/// ** Save profile updates to firestore **
-/// Notes: Saves updates made to user profile to database.
-/// --> Returns nothing.
-/// ////////////////////////////////////////
-export const updateUserDocument = async (uid, userProfile) => {
-  const userRef = firestore.doc(`users/${uid}`);
-  return userRef
-    .get()
-    .then((userDoc) => {
-      if (userDoc.exists) {
-        const userData = userDoc.data();
-        userRef
-          .set({
-            ...userData,
-            ...userProfile,
-          })
-          .then()
-          .catch((error) => {
-            throw new Error(
-              `Sorry an error occured while updating profile. Error: ${error}`
-            );
-          });
-      } else {
-        throw new Error('User document does not exist. Please login again.');
-      }
-    })
-    .catch((error) => {
-      throw new Error(error);
     });
 };
 
@@ -517,7 +581,6 @@ export const updateSurveyData = async (surveyId, newValueObject) => {
 /// Notes: Deletes a survey from the database using a surveyId.
 /// --> returns nothing (..yet, will have error handling).
 /// ////////////////////////////////////////
-
 export const deleteSurvey = async (surveyId) => {
   // Get information about survey that is about to be deleted so other references can also be deleted.
   const surveyRef = firestore.doc(`surveys/${surveyId}`);
@@ -574,194 +637,6 @@ export const deleteSurvey = async (surveyId) => {
         `An error occured when deleting the survey document. ${err.message}`
       );
     });
-};
-
-/// ** Fetch (and optionally format) data for a specific location and direction **
-/// Notes: Compiles the numbers for each mode type for all surveys for a specific direction.
-/// Graph format: formatted for recharts library (array of objects)
-/// Standard format: {[mode]: value, ...}
-/// --> Returns a compiled survey object (either in standard or graph format)
-/// ////////////////////////////////////////
-export const getAllSurveyData = async (locationId, direction, format) => {
-  const locationRef = firestore.doc(`locations/${locationId}`);
-  const locationData = await locationRef
-    .get()
-    .then((locationDoc) => locationDoc.data())
-    .catch((err) => {
-      throw new Error(`An error occured while fetching survey data. ${err} `);
-    });
-
-  // iterates through all survey references for the location and uses reduce to add the results for each mode together.
-  const tally = await locationData.surveys.reduce(
-    async (acc, current) =>
-      current
-        .get()
-        .then((surveyDoc) => {
-          const surveyData = surveyDoc.data();
-          if (surveyData) {
-            surveyData.data[direction].forEach((mode) => {
-              acc[mode.name] = (acc[mode.name] || 0) + mode.value;
-            });
-            return acc;
-          }
-          return acc;
-        })
-        .catch((err) => {
-          throw new Error(
-            `An error occurred when fetching location data. ${err}`
-          );
-        }),
-    {}
-  );
-
-  // Checks for graph format type, returns if true.
-  if (format === 'graph') {
-    const graphFormat = [
-      { name: 'bike', value: tally.bike },
-      { name: 'walk', value: tally.walk },
-      { name: 'roll', value: tally.roll },
-      { name: 'schoolbus', value: tally.schoolbus },
-      { name: 'publicTrans', value: tally.publicTrans },
-      { name: 'car', value: tally.car },
-    ];
-    return graphFormat;
-  }
-  // If not graph format type, returns standard object.
-  return tally;
-};
-
-/// ** Gets a transportation totals for a location **
-/// Notes: Takes a locationId and then returns the % of respondants that use active transportation.
-/// --> Returns: a decimal value.
-/// ////////////////////////////////////////
-export const getTransportTotals = async (locationId) => {
-  const toData = await getAllSurveyData(locationId, 'to', 'graph');
-  const fromData = await getAllSurveyData(locationId, 'from', 'graph');
-  if (toData[0].value && fromData[0].value) {
-    const bothData = toData.map((mode, index) => ({
-      name: mode.name,
-      value: (mode.value += fromData[index].value),
-    }));
-    const totalSurveyed = bothData.reduce((acc, current) => {
-      let reassignedAcc = acc;
-      reassignedAcc += current.value;
-      return reassignedAcc;
-    }, 0);
-    const totalAt = bothData.reduce((acc, current) => {
-      let reassignedAcc = acc;
-      switch (current.name) {
-        case 'bike':
-          reassignedAcc += current.value;
-          break;
-        case 'walk':
-          reassignedAcc += current.value;
-          break;
-        case 'roll':
-          reassignedAcc += current.value;
-          break;
-        default:
-          return reassignedAcc;
-      }
-      return reassignedAcc;
-    }, 0);
-    return {
-      data: [...bothData],
-      activeScore: Math.round((totalAt / totalSurveyed) * 100),
-      totalSurveyed,
-      totalActive: totalAt,
-      totalInactive: totalSurveyed - totalAt,
-    };
-  }
-  return 0;
-};
-
-/// ** location List with atScore **
-/// --> Returns an array of llocation objects with an additional object with combined transportation data.
-/// ////////////////////////////////////////
-
-export const locationListWithAdditionalData = async () => {
-  const locations = await fetchAllLocationData();
-  const promises = [];
-  locations.forEach((location) => {
-    const additionalDataPromise = getTransportTotals(location.locationId);
-    promises.push(additionalDataPromise);
-  });
-  const newarray = await Promise.all(promises).then((results) => {
-    const newLocationArr = results.map((result, idx) => ({
-      ...locations[idx],
-      totals: { ...result },
-    }));
-    return newLocationArr;
-  });
-  return newarray;
-};
-
-/// ** Create Location document in Firestore **
-/// Notes: Takes a mapbox location search result object, checks for its existance in the database,
-/// then adds a new document to the locations collection.
-/// --> Returns: Location object if successful
-/// ////////////////////////////////////////
-export const createNewLocationDocument = async (result, name, type) => {
-  const locationId = result.id.split('.')[1];
-  const locationRef = firestore.doc(`locations/${locationId}`);
-  await locationRef
-    .get()
-    .then((locationDoc) => {
-      if (!locationDoc.exists) {
-        const newLocation = {
-          locationId,
-          locationAddress: result.place_name,
-          locationCoords: result.center,
-          locationName: name,
-          locationType: type,
-          surveys: [],
-          summary: {
-            activeScore: 0,
-            totalActive: 0,
-            totalInactive: 0,
-            totalSurveyed: 0,
-            data: [
-              { name: 'bike', value: 0 },
-              { name: 'walk', value: 0 },
-              { name: 'roll', value: 0 },
-              { name: 'schoolbus', value: 0 },
-              { name: 'publicTrans', value: 0 },
-              { name: 'car', value: 0 },
-            ],
-          },
-        };
-        locationRef
-          .set(newLocation)
-          .then()
-          .catch((err) => {
-            throw new Error(
-              `An error occured when creating a new location document. ${err}`
-            );
-          });
-        return newLocation;
-      }
-      throw new Error('The location already exists in the Modal Database');
-    })
-    .catch((err) => {
-      throw new Error(err);
-    });
-};
-
-/// ** Configuration for Firebase auth ui **
-/// ////////////////////////////////////////
-export const uiConfig = {
-  callbacks: {
-    signInSuccessWithAuthResult: (authResult) => {
-      createUserDocument(authResult);
-      return false;
-    },
-  },
-  signInSuccessUrl: '/',
-  signInFlow: 'popup',
-  signInOptions: [
-    firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-    firebase.auth.EmailAuthProvider.PROVIDER_ID,
-  ],
 };
 
 export default firebase;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { withRouter } from 'react-router-dom';
 import propTypes from 'prop-types';
 
@@ -6,6 +6,7 @@ import Container from 'react-bootstrap/Container';
 import Table from 'react-bootstrap/Table';
 import Overlay from 'react-bootstrap/Overlay';
 import Tooltip from 'react-bootstrap/Tooltip';
+import { AlertContext } from '../../contexts/alert.context';
 
 import MySpinner from '../my-spinner/my-spinner.component';
 import { ReactComponent as Icon } from '../../assets/info.svg';
@@ -13,6 +14,7 @@ import { ReactComponent as Icon } from '../../assets/info.svg';
 import { fetchAllLocationData } from '../../firebase/firebase.utils';
 
 const LocationList = ({ history }) => {
+  const [alerts, setAlerts] = useContext(AlertContext);
   const [locations, setLocations] = useState([]);
   const [isLoading, setLoading] = useState(true);
   const [tooltipShow, setTooltipShow] = useState(false);
@@ -20,12 +22,20 @@ const LocationList = ({ history }) => {
 
   useEffect(() => {
     const getAndSetLocationList = async () => {
-      const locationList = await fetchAllLocationData();
-      setLocations(locationList);
-      setLoading(false);
+      fetchAllLocationData()
+        .then((locationList) => {
+          setLocations(locationList);
+          setLoading(false);
+        })
+        .catch((err) => {
+          setAlerts((alertList) => [
+            ...alertList,
+            { type: 'fail', message: err.message },
+          ]);
+        });
     };
     getAndSetLocationList();
-  }, []);
+  }, [setAlerts]);
 
   // If component is fetching data return spinner component.
   if (isLoading) return <MySpinner />;

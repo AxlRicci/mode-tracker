@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import propTypes from 'prop-types';
+
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Jumbotron from 'react-bootstrap/Jumbotron';
-import { PortraitSharp } from '@material-ui/icons';
+import { AlertContext } from '../../contexts/alert.context';
+
 import { fetchAllLocationData } from '../../firebase/firebase.utils';
 
 import MySpinner from '../my-spinner/my-spinner.component';
@@ -14,6 +16,7 @@ const SurveyDetailSection = ({
   formValues,
   validationErrors,
 }) => {
+  const [alerts, setAlerts] = useContext(AlertContext);
   const [isLoading, setLoading] = useState(true);
   const [locations, setLocations] = useState(['loading...']);
   const gradeOptions = [
@@ -40,12 +43,20 @@ const SurveyDetailSection = ({
 
   useEffect(() => {
     const fetchLocations = async () => {
-      const locationArray = await fetchAllLocationData();
-      setLocations(locationArray);
-      setLoading(false);
+      fetchAllLocationData()
+        .then((locationArray) => {
+          setLocations(locationArray);
+          setLoading(false);
+        })
+        .catch((err) => {
+          setAlerts((alertList) => [
+            ...alertList,
+            { type: 'fail', message: err.message },
+          ]);
+        });
     };
     fetchLocations();
-  }, []);
+  }, [setAlerts]);
 
   if (isLoading)
     return (

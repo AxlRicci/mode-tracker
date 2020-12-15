@@ -36,6 +36,7 @@ const SurveyList = ({ query, editable }) => {
     // unsub from collection data stream.
     return () => firestore.collection('surveys').onSnapshot(() => {});
   }, [query]);
+
   return (
     <CardDeck className="d-flex flex-column">
       {surveyList ? (

@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import propTypes from 'prop-types';
 
 import Card from 'react-bootstrap/Card';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import Spinner from 'react-bootstrap/Spinner';
+import { AlertContext } from '../../contexts/alert.context';
 
 import SurveyGraph from '../survey-graph/survey-graph.component';
 import SurveyTable from '../survey-table/survey-table.component';
@@ -14,17 +15,26 @@ import { fetchLocationDocument } from '../../firebase/firebase.utils';
 // Will need a spinner to load survey data. Right now just has a if statement.
 
 const SurveyListCard = ({ survey, editable }) => {
+  const [alerts, setAlerts] = useContext(AlertContext);
   const [location, setLocation] = useState({});
 
   useEffect(() => {
     const getLocationName = async (locationId) => {
       if (locationId) {
-        const locationDoc = await fetchLocationDocument(locationId);
-        setLocation(locationDoc);
+        fetchLocationDocument(locationId)
+          .then((locationDoc) => {
+            setLocation(locationDoc);
+          })
+          .catch((err) => {
+            setAlerts((alertList) => [
+              ...alertList,
+              { type: 'fail', message: err.message },
+            ]);
+          });
       }
     };
     getLocationName(survey.location);
-  }, [survey]);
+  }, [survey, setAlerts]);
 
   if (location) {
     const date = new Date(survey.createdAt);

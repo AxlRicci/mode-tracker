@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
-import firebase, { fetchUserDocument } from './firebase/firebase.utils';
+import firebase, { userLogin } from './firebase/firebase.utils';
 
 import { UserContext } from './contexts/user.context';
 import { AlertContext } from './contexts/alert.context';
@@ -35,14 +35,25 @@ const App = () => {
   useEffect(() => {
     firebase.auth().onAuthStateChanged(async (user) => {
       if (user) {
-        const userDoc = await fetchUserDocument(user.uid);
-        setCurrentUser({
-          ...userDoc,
-        });
-        setAlerts((alertList) => [
-          ...alertList,
-          { type: 'success', message: 'Sign in successful.' },
-        ]);
+        userLogin(user)
+          .then((userDoc) => {
+            setCurrentUser({
+              ...userDoc,
+            });
+            setAlerts((alertList) => [
+              ...alertList,
+              { type: 'success', message: 'Sign in successful.' },
+            ]);
+          })
+          .catch((err) => {
+            setAlerts((alertList) => [
+              ...alertList,
+              { type: 'fail', message: err.message },
+            ]);
+          })
+          .catch((err) => {
+            console.error(err);
+          });
       } else {
         setCurrentUser(null);
       }

@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import propTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 
 import Jumbotron from 'react-bootstrap/Jumbotron';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
-import Spinner from 'react-bootstrap/Spinner';
+import { AlertContext } from '../../contexts/alert.context';
 
 import MySpinner from '../my-spinner/my-spinner.component';
 
@@ -13,29 +13,35 @@ import SurveyGraph from '../survey-graph/survey-graph.component';
 
 import { ReactComponent as Alert } from '../../assets/alert.svg';
 
-import {
-  getTransportTotals,
-  fetchLocationDocument,
-} from '../../firebase/firebase.utils';
+import { fetchLocationDocument } from '../../firebase/firebase.utils';
 
 const LocationOverview = ({
   match: {
     params: { id },
   },
 }) => {
+  const [alerts, setAlerts] = useContext(AlertContext);
   const [location, setLocation] = useState(null);
   const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
     const getData = async () => {
       if (id) {
-        const locationData = await fetchLocationDocument(id);
-        setLocation(locationData);
+        fetchLocationDocument(id)
+          .then((locationData) => {
+            setLocation(locationData);
+            setLoading(false);
+          })
+          .catch((err) => {
+            setAlerts((alertList) => [
+              ...alertList,
+              { type: 'fail', message: err.message },
+            ]);
+          });
       }
-      setLoading(false);
     };
     getData();
-  }, [id]);
+  }, [id, setAlerts]);
 
   if (isLoading)
     return (

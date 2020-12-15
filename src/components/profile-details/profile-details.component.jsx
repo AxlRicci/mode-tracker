@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import propTypes from 'prop-types';
 
 import Button from 'react-bootstrap/Button';
 import Jumbotron from 'react-bootstrap/Jumbotron';
+import { AlertContext } from '../../contexts/alert.context';
 
 import { fetchAllLocationData } from '../../firebase/firebase.utils';
 
@@ -16,6 +17,7 @@ const ProfileDetails = ({
   handleChange,
   handleSubmit,
 }) => {
+  const [alerts, setAlerts] = useContext(AlertContext);
   const [isLoading, setLoading] = useState(true);
   const [locations, setLocations] = useState([]);
   const gradeOptions = [
@@ -42,12 +44,20 @@ const ProfileDetails = ({
 
   useEffect(() => {
     const fetchLocations = async () => {
-      const locationArray = await fetchAllLocationData();
-      setLocations(locationArray);
-      setLoading(false);
+      fetchAllLocationData()
+        .then((locationArray) => {
+          setLocations(locationArray);
+          setLoading(false);
+        })
+        .catch((err) => {
+          setAlerts((alertList) => [
+            ...alertList,
+            { type: 'fail', message: err.message },
+          ]);
+        });
     };
     fetchLocations();
-  }, []);
+  }, [setAlerts]);
 
   // If locations are fetching show loading spinner instead of empty input fields
   if (isLoading)

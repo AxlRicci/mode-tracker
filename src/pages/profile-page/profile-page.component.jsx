@@ -42,7 +42,10 @@ const ProfilePage = () => {
   const handleSubmit = async () => {
     updateUserDocument(user.uid, userProfile)
       .then(() =>
-        setAlerts([...alerts, { type: 'success', message: 'updated..' }])
+        setAlerts([
+          ...alerts,
+          { type: 'success', message: 'Profile details successfully saved.' },
+        ])
       )
       .catch((error) => {
         setAlerts([...alerts, { type: 'fail', message: error.message }]);

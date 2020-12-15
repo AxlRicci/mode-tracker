@@ -47,11 +47,22 @@ const SurveyTable = ({ additionalClasses, survey, editable }) => {
   };
 
   const handleDelete = async () => {
-    await deleteSurvey(survey.surveyId);
-    setAlerts([
-      ...alerts,
-      { type: 'success', message: 'Survey deleted successfully.' },
-    ]);
+    deleteSurvey(survey.surveyId)
+      .then(() => {
+        setAlerts([
+          ...alerts,
+          { type: 'success', message: 'Survey deleted successfully.' },
+        ]);
+      })
+      .catch((err) => {
+        setAlerts([
+          ...alerts,
+          {
+            type: 'fail',
+            message: `An error occured while deleting survey. ${err.message}`,
+          },
+        ]);
+      });
   };
 
   // If no survey is loaded in yet show spinner.
