@@ -71,7 +71,7 @@ const App = () => {
             />
           ) : null}
           <Router>
-            <UserContext.Provider value={currentUser}>
+            <UserContext.Provider value={[currentUser, setCurrentUser]}>
               <Navigation />
               <Switch>
                 <Route exact path="/" component={HomePage} />

@@ -56,7 +56,7 @@ const initialErrorValues = {
 };
 
 const TrackerForm = ({ location }) => {
-  const currentUser = useContext(UserContext);
+  const [currentUser, setCurrentUser] = useContext(UserContext);
   const [alerts, setAlerts] = useContext(AlertContext);
   const [step, setStep] = useState(1);
   const [survey, setSurvey] = useState();
@@ -67,8 +67,8 @@ const TrackerForm = ({ location }) => {
   useEffect(() => {
     setFormValues((fVals) => ({
       ...fVals,
-      location: currentUser.location || '12232068545844200',
-      grade: currentUser.grade || '5',
+      location: currentUser ? currentUser.location : '12232068545844200',
+      grade: currentUser ? currentUser.grade : '5',
     }));
 
     // Check location state to see if user is being routed with "Do survey at.." button on a location page.

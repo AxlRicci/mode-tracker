@@ -10,7 +10,7 @@ import { UserContext } from '../../contexts/user.context';
 import { updateUserDocument } from '../../firebase/firebase.utils';
 
 const ProfilePage = () => {
-  const user = useContext(UserContext);
+  const [currentUser, setCurrentUser] = useContext(UserContext);
   const [alerts, setAlerts] = useContext(AlertContext);
 
   const [userProfile, setUserProfile] = useState({
@@ -21,15 +21,15 @@ const ProfilePage = () => {
   });
 
   useEffect(() => {
-    if (user) {
+    if (currentUser) {
       setUserProfile({
-        uid: user.uid,
-        displayName: user.displayName,
-        location: user.location,
-        grade: user.grade || '1',
+        uid: currentUser.uid,
+        displayName: currentUser.displayName,
+        location: currentUser.location,
+        grade: currentUser.grade || '1',
       });
     }
-  }, [user]);
+  }, [currentUser]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -40,13 +40,14 @@ const ProfilePage = () => {
   };
 
   const handleSubmit = async () => {
-    updateUserDocument(user.uid, userProfile)
-      .then(() =>
+    updateUserDocument(currentUser.uid, userProfile)
+      .then(() => {
+        setCurrentUser({ ...userProfile });
         setAlerts([
           ...alerts,
           { type: 'success', message: 'Profile details successfully saved.' },
-        ])
-      )
+        ]);
+      })
       .catch((error) => {
         setAlerts([...alerts, { type: 'fail', message: error.message }]);
       });

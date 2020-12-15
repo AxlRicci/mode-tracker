@@ -16,7 +16,7 @@ import { AlertContext } from '../../contexts/alert.context';
 import { ReactComponent as Logo } from '../../assets/m.svg';
 
 const Navigation = ({ history }) => {
-  const currentUser = useContext(UserContext);
+  const [currentUser, setCurrentUser] = useContext(UserContext);
   const [alerts, setAlerts] = useContext(AlertContext);
 
   const handleSignOut = () => {
