@@ -39,12 +39,14 @@ const Navigation = ({ history }) => {
           <Nav.Link as={Link} to="/">
             Home
           </Nav.Link>
-          <Nav.Link as={Link} to="/locations">
-            Schools
-          </Nav.Link>
-          <Nav.Link as={Link} to="/about">
-            About
-          </Nav.Link>
+          <NavDropdown title="Schools">
+            <NavDropdown.Item as={Link} to="/locations">
+              School List
+            </NavDropdown.Item>
+            <NavDropdown.Item as={Link} to="/add-location">
+              Add a school
+            </NavDropdown.Item>
+          </NavDropdown>
         </Nav>
         {currentUser ? (
           <Nav className="ml-auto">
