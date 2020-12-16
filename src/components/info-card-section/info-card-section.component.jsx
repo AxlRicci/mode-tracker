@@ -12,9 +12,11 @@ import Group from '../../assets/group.svg';
 import Support from '../../assets/support.svg';
 
 const InfoCardSection = () => (
-  <Jumbotron className="mt-3 text-center text-md-left">
+  <Jumbotron className="mt-3 text-center">
     <Row>
-      <h2 className="mb-5 display-4">How Modal works</h2>
+      <Col>
+        <h2 className="mb-5 display-4">How Modal works</h2>
+      </Col>
     </Row>
     <Row>
       <Col>

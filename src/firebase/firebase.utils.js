@@ -230,6 +230,22 @@ export const collectionRefToMap = async (collection) => {
   return collectionMap;
 };
 
+const getActiveCount = (combinedModeCounts) =>
+  combinedModeCounts.reduce((acc, mode) => {
+    if (mode.name === 'bike' || mode.name === 'walk' || mode.name === 'roll') {
+      return acc + mode.value;
+    }
+    return acc;
+  }, 0);
+
+const getSurveyedCount = (combinedModeCounts) =>
+  combinedModeCounts.reduce((acc, mode) => acc + mode.value, 0);
+
+const getInactiveCount = (activeCount, totalCount) => totalCount - activeCount;
+
+const getActiveScore = (activeCount, totalSurveyedCount) =>
+  activeCount / totalSurveyedCount;
+
 /// ** Submit survey form to database **
 /// Notes: Takes a survey object and user object, varifies and formats the data and then makes multiple entries in the database.
 /// Entry 1: A survey document with the formatted survey is created in the surveys collection
@@ -370,14 +386,19 @@ export const createNewSurveyDocument = async (survey, user) => {
         };
       });
 
-      // recalculate active transportation score.
-      const newActiveScore =
-        totalSurveyed > 0 ? summary.totalActive / summary.totalSurveyed : 0;
-
       // recalculate total amount surveyed
       const newTotalSurveyed = summary.totalSurveyed + totalSurveyed;
       const newTotalActive = summary.totalActive + totalActive;
       const newTotalInactive = summary.totalInactive + totalInactive;
+      const newActiveScore =
+        newTotalSurveyed > 0 ? newTotalActive / newTotalSurveyed : 0;
+
+      console.log(
+        newTotalSurveyed,
+        newTotalActive,
+        newTotalInactive,
+        newActiveScore
+      );
 
       // update location document with new data;
       locationRef
@@ -477,26 +498,26 @@ export const updateSurveyData = async (surveyId, newValueObject) => {
 
   console.log(updatedSurveyDirectionData, allSurveyData);
 
-  const getActiveCount = (combinedModeCounts) =>
-    combinedModeCounts.reduce((acc, mode) => {
-      if (
-        mode.name === 'bike' ||
-        mode.name === 'walk' ||
-        mode.name === 'roll'
-      ) {
-        return acc + mode.value;
-      }
-      return acc;
-    }, 0);
+  // const getActiveCount = (combinedModeCounts) =>
+  //   combinedModeCounts.reduce((acc, mode) => {
+  //     if (
+  //       mode.name === 'bike' ||
+  //       mode.name === 'walk' ||
+  //       mode.name === 'roll'
+  //     ) {
+  //       return acc + mode.value;
+  //     }
+  //     return acc;
+  //   }, 0);
 
-  const getSurveyedCount = (combinedModeCounts) =>
-    combinedModeCounts.reduce((acc, mode) => acc + mode.value, 0);
+  // const getSurveyedCount = (combinedModeCounts) =>
+  //   combinedModeCounts.reduce((acc, mode) => acc + mode.value, 0);
 
-  const getInactiveCount = (activeCount, totalCount) =>
-    totalCount - activeCount;
+  // const getInactiveCount = (activeCount, totalCount) =>
+  //   totalCount - activeCount;
 
-  const getActiveScore = (activeCount, totalSurveyedCount) =>
-    activeCount / totalSurveyedCount;
+  // const getActiveScore = (activeCount, totalSurveyedCount) =>
+  //   activeCount / totalSurveyedCount;
 
   // Recalculate summary stats for locationDocument.
   const updatedLocationTotalSurveyed = getSurveyedCount(
@@ -594,13 +615,75 @@ export const deleteSurvey = async (surveyId) => {
       );
     });
 
-  // List of collections in the db where references need to be deleted when a survey is deleted.
-  const updateList = ['user', 'location'];
+  // get location document reference and data. calculate necessary changes and update location document.
+  const locationRef = firestore.doc(`locations/${surveyData.location}`);
+  const locationData = await locationRef
+    .get()
+    .then((res) => res.data())
+    .catch((err) => {
+      console.error(err);
+      throw new Error(
+        `An error occured while fetching location document. ${err.message}`
+      );
+    });
 
-  // Loop through collections and delete appropriate fields within documents.
-  for (let i = 0; i < updateList.length; i += 1) {
-    const ref = firestore.doc(`${updateList[i]}s/${surveyData[updateList[i]]}`);
-    const data = await ref
+  // filter the survey to be deleted from the list.
+  const filteredLocationSurveys = locationData.surveys.filter(
+    (survey) => survey.id !== surveyId
+  );
+
+  // calculate the new summary data values (old mode value - mode value from survey being deleted)
+  const updatedSummaryModeData = locationData.summary.data.map((mode) => {
+    const modeIndexTo = surveyData.data.to
+      .map((surveyModeTo) => surveyModeTo.name)
+      .indexOf(mode.name);
+    const modeIndexFrom = surveyData.data.from
+      .map((surveyModeFrom) => surveyModeFrom.name)
+      .indexOf(mode.name);
+    return {
+      name: mode.name,
+      value:
+        mode.value -
+        (surveyData.data.to[modeIndexTo].value +
+          surveyData.data.from[modeIndexFrom].value),
+    };
+  });
+
+  const updatedTotalSurveyed = getSurveyedCount(updatedSummaryModeData);
+  const updatedActiveCount = getActiveCount(updatedSummaryModeData);
+  const updatedInactiveCount = getInactiveCount(
+    updatedActiveCount,
+    updatedTotalSurveyed
+  );
+  const updatedActiveScore = getActiveScore(
+    updatedActiveCount,
+    updatedTotalSurveyed
+  );
+
+  // update the survey reference array with new filtered reference list.
+  locationRef
+    .update({
+      summary: {
+        activeScore: updatedActiveScore || 0,
+        data: [...updatedSummaryModeData],
+        totalActive: updatedActiveCount,
+        totalInactive: updatedInactiveCount,
+        totalSurveyed: updatedTotalSurveyed,
+      },
+      surveys: filteredLocationSurveys,
+    })
+    .then((res) => res)
+    .catch((err) => {
+      console.error(err);
+      throw new Error(
+        `An error occured when updating user survey array. ${err.message}`
+      );
+    });
+
+  // if user is associated with survey. fetch user document reference and data and calculate necessary changes and update user document.
+  if (!surveyData.user === 'anonymous') {
+    const userRef = firestore.doc(`users/${surveyData.user}`);
+    const userData = await userRef
       .get()
       .then((res) => res.data())
       .catch((err) => {
@@ -610,14 +693,14 @@ export const deleteSurvey = async (surveyId) => {
         );
       });
 
-    // filter the survey to be deleted from the list.
-    const filteredSurveys = data.surveys.filter(
+    const filteredUserSurveys = userData.surveys.filter(
       (survey) => survey.id !== surveyId
     );
-
     // update the survey reference array with new filtered reference list.
-    ref
-      .update({ surveys: filteredSurveys })
+    userRef
+      .update({
+        surveys: filteredUserSurveys,
+      })
       .then((res) => res)
       .catch((err) => {
         console.error(err);
