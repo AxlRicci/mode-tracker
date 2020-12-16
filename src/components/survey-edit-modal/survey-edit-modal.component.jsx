@@ -65,10 +65,10 @@ const SurveyEditModal = ({ show, handleClose, data }) => {
         />
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="danger" onClick={handleClose}>
+        <Button variant="secondary" onClick={handleClose}>
           Close
         </Button>
-        <Button variant="success" onClick={handleSubmit}>
+        <Button variant="primary" onClick={handleSubmit}>
           Save Changes
         </Button>
       </Modal.Footer>

@@ -3,6 +3,7 @@ import propTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
+import Jumbotron from 'react-bootstrap/Jumbotron';
 
 import { createNewSurveyDocument } from '../../firebase/firebase.utils';
 import { trackerFormValidation } from './tracker-form-validation.component';
@@ -172,10 +173,13 @@ const TrackerForm = ({ location }) => {
   return (
     <Form>
       {step === 3 ? (
-        <SurveyList
-          query={{ field: 'surveyId', value: survey.surveyId }}
-          editable
-        />
+        <Jumbotron>
+          <h1 className="display-4 mb-5">Survey Results</h1>
+          <SurveyList
+            query={{ field: 'surveyId', value: survey.surveyId }}
+            editable
+          />
+        </Jumbotron>
       ) : null}
       {step !== 3 ? (
         <SurveyDetailSection
@@ -187,22 +191,38 @@ const TrackerForm = ({ location }) => {
       <Form.Row>
         <Col>
           {step === 1 ? (
-            <Survey
-              handleInputChange={handleInputChange}
-              formValues={formValues}
-              text="to"
-              value="tl"
-              validationErrors={validationErrors}
-            />
+            <>
+              <Jumbotron className="p-3 mb-2">
+                <h4>
+                  Part 1: Ask students how they travelled <strong>TO</strong>{' '}
+                  school.
+                </h4>
+              </Jumbotron>
+              <Survey
+                handleInputChange={handleInputChange}
+                formValues={formValues}
+                text="to"
+                value="tl"
+                validationErrors={validationErrors}
+              />
+            </>
           ) : null}
           {step === 2 ? (
-            <Survey
-              handleInputChange={handleInputChange}
-              formValues={formValues}
-              text="from"
-              value="fl"
-              validationErrors={validationErrors}
-            />
+            <>
+              <Jumbotron className="p-3 mb-2">
+                <h4>
+                  Part 2: Ask students how they <strong>will</strong> travel
+                  home <strong>FROM</strong> school today
+                </h4>
+              </Jumbotron>
+              <Survey
+                handleInputChange={handleInputChange}
+                formValues={formValues}
+                text="from"
+                value="fl"
+                validationErrors={validationErrors}
+              />
+            </>
           ) : null}
         </Col>
       </Form.Row>

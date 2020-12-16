@@ -53,7 +53,7 @@ const Navigation = ({ history }) => {
             <Button
               className="mr-xl-2 mb-2 mb-xl-0"
               onClick={() => history.push('/survey')}
-              variant="success"
+              variant="primary"
             >
               Start A Survey
             </Button>
@@ -68,7 +68,7 @@ const Navigation = ({ history }) => {
           </Nav>
         ) : (
           <Nav className="ml-auto">
-            <Button onClick={() => history.push('/login')} variant="info">
+            <Button onClick={() => history.push('/login')} variant="primary">
               Sign In
             </Button>
           </Nav>

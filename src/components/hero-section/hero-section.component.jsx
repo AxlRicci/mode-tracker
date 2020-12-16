@@ -24,12 +24,12 @@ const HeroSection = ({ history }) => (
           <h1 className="display-3 mb-0 d-block d-md-none">
             Walk more with Modal
           </h1>
-          <p className="lead mb-3">
+          <p className="lead mb-3 mt-3 mt-md-0">
             Modal helps schools encourage healthy and sustainable school travel
             by quickly and easily tracking and analysing travel mode split.
           </p>
           <p>
-            <Button onClick={() => history.push('/survey')} variant="info">
+            <Button onClick={() => history.push('/survey')} variant="primary">
               Try A Modal Survey
             </Button>
           </p>

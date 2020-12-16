@@ -73,7 +73,11 @@ const SurveyDetailSection = ({
     <Form.Row>
       <Col>
         <Jumbotron className="bg-info text-white mb-2">
-          <h4 className="mb-3">What school and grade is this survey for?</h4>
+          <h4 className="mb-3 display-4">Hands Up Survey</h4>
+          <p className="lead mb-5">
+            Gather your students together, them how they travelled to school,
+            count hands up. Then, repeat for how they plan on travelling home.
+          </p>
           <FormSelect
             name="location"
             label="School"

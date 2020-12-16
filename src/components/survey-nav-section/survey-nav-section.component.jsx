@@ -12,15 +12,15 @@ const SurveyNavSection = ({
   history,
   locationId,
 }) => (
-  <ButtonToolbar className="d-flex justify-content-end mt-3">
-    <ButtonGroup className="mr-3">
+  <ButtonToolbar className="d-flex justify-content-md-end flex-column flex-md-row mt-4">
+    <ButtonGroup className="mr-md-3 mb-3 mb-md-0">
       {step === 2 ? (
         <Button variant="danger" onClick={() => handleNavClick(1)}>
           Back
         </Button>
       ) : null}
       {step === 3 ? (
-        <Button variant="info" onClick={() => handleNavClick(1)}>
+        <Button variant="secondary" onClick={() => handleNavClick(1)}>
           Start Another Survey
         </Button>
       ) : null}
@@ -32,13 +32,13 @@ const SurveyNavSection = ({
         </Button>
       ) : null}
       {step === 1 ? (
-        <Button variant="info" onClick={() => handleNavClick(2)}>
+        <Button variant="primary" onClick={() => handleNavClick(2)}>
           Next
         </Button>
       ) : null}
       {step === 3 ? (
         <Button
-          variant="success"
+          variant="primary"
           onClick={() => history.push(`/location/${locationId}`)}
         >
           Back to Location Page

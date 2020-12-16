@@ -23,7 +23,7 @@ const LocationSearchResultsList = ({ handleClick, results }) => (
             sm={4}
             className="d-flex flex-sm-row align-items-center justify-content-center justify-content-sm-end"
           >
-            <Button variant="info" onClick={() => handleClick(result)}>
+            <Button variant="primary" onClick={() => handleClick(result)}>
               Select
             </Button>
           </Col>

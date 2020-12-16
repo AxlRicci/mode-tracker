@@ -68,10 +68,12 @@ const LocationPage = ({
           </Row>
           <Row>
             <Col>
-              <h2 className="mb-4 display-4">Recent Surveys</h2>
-              <SurveyList
-                query={{ field: 'location', value: location.locationId }}
-              />
+              <Jumbotron className="bg-info">
+                <h2 className="mb-5 display-4 text-white">Recent Surveys</h2>
+                <SurveyList
+                  query={{ field: 'location', value: location.locationId }}
+                />
+              </Jumbotron>
             </Col>
           </Row>
         </Container>

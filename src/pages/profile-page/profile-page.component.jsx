@@ -1,5 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import Container from 'react-bootstrap/Container';
+import Jumbotron from 'react-bootstrap/Jumbotron';
 
 import ProfileDetails from '../../components/profile-details/profile-details.component';
 import SurveyList from '../../components/survey-list/survey-list.component';
@@ -62,13 +63,15 @@ const ProfilePage = () => {
           handleChange={handleChange}
           handleSubmit={handleSubmit}
         />
-        <h3 className="mb-3 display-4 text-center text-md-left">
-          Recent Surveys
-        </h3>
-        <SurveyList
-          query={{ field: 'user', value: userProfile.uid }}
-          editable
-        />
+        <Jumbotron className="">
+          <h3 className="mb-5 display-4 text-center text-md-left">
+            Recent Surveys
+          </h3>
+          <SurveyList
+            query={{ field: 'user', value: userProfile.uid }}
+            editable
+          />
+        </Jumbotron>
       </Container>
     );
   }

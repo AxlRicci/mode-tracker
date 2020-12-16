@@ -44,7 +44,7 @@ const SurveyListCard = ({ survey, editable }) => {
     const formattedDate = `${month}-${day}-${year}`;
 
     return (
-      <Card className="mb-3">
+      <Card className="mb-5 shadow">
         <Card.Header>
           <div className="d-flex flex-column flex-md-row justify-content-between">
             <p className="lead">

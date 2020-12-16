@@ -53,8 +53,8 @@ const LocationOverview = ({
   const { activeScore, data, totalSurveyed } = location.summary;
   const { locationName } = location;
   return (
-    <Jumbotron className="bg-light">
-      {location.summary ? (
+    <Jumbotron className="">
+      {location.summary.activeScore ? (
         <Row>
           <Col>
             <h2>Overview</h2>

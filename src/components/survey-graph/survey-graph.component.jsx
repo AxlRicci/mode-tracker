@@ -109,7 +109,7 @@ const CustomizedTick = ({ x, y, payload }) => {
 const CustomizedLabel = ({ x, y, value }) => (
   <g transform={`translate(${x}, ${y})`}>
     <text
-      x={30}
+      x={22}
       y={20}
       dy={0}
       fontSize="16"
@@ -156,7 +156,7 @@ const SurveyGraph = ({ additionalClasses, survey, percentage }) => {
       <BarChart layout="vertical" data={graphData} barCategoryGap="1">
         <YAxis dataKey="name" type="category" tick={<CustomizedTick />} />
         <XAxis type="number" />
-        <Bar dataKey="value" label={<CustomizedLabel />} />
+        <Bar dataKey="value" fill="#007BFF" label={<CustomizedLabel />} />
       </BarChart>
     </ResponsiveContainer>
   );

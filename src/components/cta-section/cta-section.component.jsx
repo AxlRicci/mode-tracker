@@ -9,25 +9,23 @@ import Jumbotron from 'react-bootstrap/Jumbotron';
 import Row from 'react-bootstrap/Row';
 
 const CtaSection = ({ heading, subheading, buttonLabel, history }) => (
-  <Container className="mt-5" fluid>
-    <Jumbotron className="bg-info text-white">
-      <Row className="align-items-center justify-content-center" noGutters>
-        <Col xs={12} md={8} className="text-center text-md-left">
-          <h1 className="display-4">{heading}</h1>
-          <p className="lead">{subheading}</p>
-        </Col>
-        <Col className="d-flex justify-content-center" xs={12} md={4}>
-          <Button
-            onClick={() => history.push('/survey')}
-            variant="outline-light"
-            className="btn-lg"
-          >
-            {buttonLabel}
-          </Button>
-        </Col>
-      </Row>
-    </Jumbotron>
-  </Container>
+  <Jumbotron className="bg-primary text-white mt-5">
+    <Row className="align-items-center justify-content-center" noGutters>
+      <Col xs={12} md={8} className="text-center text-md-left">
+        <h1 className="display-4">{heading}</h1>
+        <p className="lead">{subheading}</p>
+      </Col>
+      <Col className="d-flex justify-content-center" xs={12} md={4}>
+        <Button
+          onClick={() => history.push('/survey')}
+          variant="outline-light"
+          className="btn-lg"
+        >
+          {buttonLabel}
+        </Button>
+      </Col>
+    </Row>
+  </Jumbotron>
 );
 
 CtaSection.propTypes = {

@@ -188,7 +188,7 @@ const LocationSearch = () => {
             error={searchErrors.countryError}
           />
         </Form.Row>
-        <Button variant="info" onClick={handleSubmit}>
+        <Button variant="primary" onClick={handleSubmit}>
           Search
         </Button>
       </Form>
