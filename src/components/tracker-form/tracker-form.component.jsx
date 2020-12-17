@@ -68,8 +68,10 @@ const TrackerForm = ({ location }) => {
   useEffect(() => {
     setFormValues((fVals) => ({
       ...fVals,
-      location: currentUser ? currentUser.location : '12232068545844200',
-      grade: currentUser ? currentUser.grade : '5',
+      location: currentUser.location
+        ? currentUser.location
+        : '12232068545844200',
+      grade: currentUser.grade ? currentUser.grade : '5',
     }));
 
     // Check location state to see if user is being routed with "Do survey at.." button on a location page.

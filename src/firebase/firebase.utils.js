@@ -54,7 +54,7 @@ export const userLogin = async (user) => {
             createdAt: new Date(),
             surveys: [],
             grade: '',
-            location: '',
+            location: '12232068545844200',
           })
           .then()
           .catch((err) => {
@@ -230,6 +230,9 @@ export const collectionRefToMap = async (collection) => {
   return collectionMap;
 };
 
+/// ** Get Summary Statistics for Locations and Surveys **
+/// Notes: A set of functions to summarize the data from surveys.
+/// ///////////////////////////////////////////
 const getActiveCount = (combinedModeCounts) =>
   combinedModeCounts.reduce((acc, mode) => {
     if (mode.name === 'bike' || mode.name === 'walk' || mode.name === 'roll') {
@@ -488,36 +491,12 @@ export const updateSurveyData = async (surveyId, newValueObject) => {
   });
 
   const oppositeDirection = direction === 'to' ? 'from' : 'to';
-  console.log(direction, oppositeDirection);
 
   // Compile mode counts from both directions for summary recalculations.
   const allSurveyData = [
     ...updatedSurveyDirectionData,
     ...surveyData.data[oppositeDirection],
   ];
-
-  console.log(updatedSurveyDirectionData, allSurveyData);
-
-  // const getActiveCount = (combinedModeCounts) =>
-  //   combinedModeCounts.reduce((acc, mode) => {
-  //     if (
-  //       mode.name === 'bike' ||
-  //       mode.name === 'walk' ||
-  //       mode.name === 'roll'
-  //     ) {
-  //       return acc + mode.value;
-  //     }
-  //     return acc;
-  //   }, 0);
-
-  // const getSurveyedCount = (combinedModeCounts) =>
-  //   combinedModeCounts.reduce((acc, mode) => acc + mode.value, 0);
-
-  // const getInactiveCount = (activeCount, totalCount) =>
-  //   totalCount - activeCount;
-
-  // const getActiveScore = (activeCount, totalSurveyedCount) =>
-  //   activeCount / totalSurveyedCount;
 
   // Recalculate summary stats for locationDocument.
   const updatedLocationTotalSurveyed = getSurveyedCount(
