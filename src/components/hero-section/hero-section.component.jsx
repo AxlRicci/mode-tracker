@@ -18,21 +18,23 @@ const HeroSection = ({ history }) => (
           className="pl-0 bg-white text-center text-lg-left"
           bg="white"
         >
-          <h1 className="display-2 mb-0 d-none d-md-block">
+          <h1 className="display-3 mb-2 d-none d-md-block">
             Walk more with Modal
           </h1>
-          <h1 className="display-3 mb-0 d-block d-md-none">
+          <h1 className="display-4 mb-2 d-block d-md-none">
             Walk more with Modal
           </h1>
           <p className="lead mb-3 mt-3 mt-md-0">
             Modal helps schools encourage healthy and sustainable school travel
             by quickly and easily tracking and analysing travel mode split.
           </p>
-          <p>
-            <Button onClick={() => history.push('/survey')} variant="primary">
-              Try A Modal Survey
-            </Button>
-          </p>
+          <Button
+            className="my-5 my-lg-2 btn-lg"
+            onClick={() => history.push('/survey')}
+            variant="primary"
+          >
+            Try A Modal Survey
+          </Button>
         </Jumbotron>
       </Col>
       <Col xs={{ span: 12, order: 1 }} lg={{ span: 6, order: 2 }}>
