@@ -17,12 +17,13 @@
 </p>
 
 
-![screenshot](https://raw.githubusercontent.com/amitmerchant1990/electron-markdownify/master/app/img/markdownify.gif)
+[![Modal---Demo.gif](https://s8.gifyu.com/images/Modal---Demo.gif)](https://gifyu.com/image/FLit)
 
 ## Key Features
 
 * Record, track and analyse student travel modes for multiple classes and schools.
 * Create **user accounts** using email address or Google account.
+* Save user defaults including: display name, grade, and school.
 * **Create, Read, Update, and delete** travel mode surveys.
 * Add additional schools to record travel mode surveys for.
 * View quick travel mode summary statistics for each school.
