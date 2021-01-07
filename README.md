@@ -16,9 +16,6 @@
   <a href="#license">License</a>
 </p>
 
-
-[![Modal---Demo.gif](https://s8.gifyu.com/images/Modal---Demo.gif)](https://gifyu.com/image/FLit.gif)
-
 ## Key Features
 
 * Record, track and analyse student travel modes for multiple classes and schools.
@@ -28,6 +25,16 @@
 * Add additional schools to record travel mode surveys for.
 * View quick travel mode summary statistics for each school.
 * **Graphs** visualizing travel mode data for each survey or school.
+
+## Demo
+### Survey 
+
+[![Modal---Demo.gif](https://media.giphy.com/media/p3kQTVciQHJd7B53zG/giphy.gif)](https://media.giphy.com/media/p3kQTVciQHJd7B53zG/giphy.gif)
+
+### User Authentication
+
+[![Modal---Demo.gif](https://media.giphy.com/media/sgkoANfCW4FhwbRXqu/giphy.gif)](https://media.giphy.com/media/sgkoANfCW4FhwbRXqu/giphy.gif)
+
 
 ## How To Use
 
