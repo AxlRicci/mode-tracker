@@ -17,7 +17,7 @@
 </p>
 
 
-[![Modal---Demo.gif](https://s8.gifyu.com/images/Modal---Demo.gif)](https://gifyu.com/image/FLit)
+[![Modal---Demo.gif](https://s8.gifyu.com/images/Modal---Demo.gif)](https://gifyu.com/image/FLit.gif)
 
 ## Key Features
 
