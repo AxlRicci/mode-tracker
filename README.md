@@ -1,70 +1,65 @@
-# Getting Started with Create React App
+<h1 align="center">
+  <br>
+  <a href="http://www.amitmerchant.com/electron-markdownify"><img src="https://www.flaticon.com/svg/static/icons/svg/1534/1534491.svg" alt="Markdownify" width="200"></a>
+  <br>
+  Modal: Travel Mode Tracker
+  <br>
+</h1>
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+<h4 align="center">A simple web application to help schools track and analyse sustainable  school travel for students.</h4>
 
-## Available Scripts
+<p align="center">
+  <a href="#key-features">Key Features</a> •
+  <a href="#how-to-use">How To Use</a> •
+  <a href="#credits">Credits</a> •
+  <a href="#related">Related</a> •
+  <a href="#license">License</a>
+</p>
 
-In the project directory, you can run:
 
-### `yarn start`
+![screenshot](https://raw.githubusercontent.com/amitmerchant1990/electron-markdownify/master/app/img/markdownify.gif)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Key Features
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+* Record, track and analyse student travel modes for multiple classes and schools.
+* Create **user accounts** using email address or Google account.
+* **Create, Read, Update, and delete** travel mode surveys.
+* Add additional schools to record travel mode surveys for.
+* View quick travel mode summary statistics for each school.
+* **Graphs** visualizing travel mode data for each survey or school.
 
-### `yarn test`
+## How To Use
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+The application can be used as an anonymous user or by creating an account. 
 
-### `yarn build`
+The user will navigate to the survey page where they will select the school and grade for the survey. Then they will poll their class to record how many students biked, walked, rolled, took the schoolbus, public transit, or a car to get to school. The results will be added to the database and summary statistics for the survey will be shown. Additionally, the survey will be posted to the school's page and the school's summary statistics updated.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+If a user has registered by email or Google account, they will have the ability to edit and delete the surveys they have completed.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Credits
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+This software uses the following resources:
 
-### `yarn eject`
+- [React](https://reactjs.org/)
+- [Firebase](https://firebase.google.com/)
+  - Firestore
+  - User Authentication
+  - Hosting
+- [Bootstrap 3](https://react-bootstrap.github.io/)
+- [Recharts](https://recharts.org/en-US/)
+- [FlatIcon](https://www.flaticon.com/)
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## You may also like...
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+- [BikeWalkRoll](https://bikewalkroll.org/) - A school mode tracking web application
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+## License
 
-## Learn More
+MIT
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+---
 
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+> [alexricci.ca](https://www.alexricci.ca) &nbsp;&middot;&nbsp;
+> GitHub [@AxlRicci](https://github.com/axlricci) &nbsp;&middot;&nbsp;
+> LinkedIn [Alex Ricci](https://www.linkedin.com/in/alex-ricci-b347b619b)
